@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>丫亮笑長的簡報助手 (For NBLM)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:,"> <!-- Prevent favicon 404 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 bg-opacity-90 backdrop-blur-md">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="Logo.png" alt="SlideAgent Logo" class="w-8 h-8 rounded-lg shadow-sm object-cover">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">丫亮笑長的簡報助手</h1>
+                <span
+                    class="px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 text-xs font-medium border border-brand-100">For
+                    NBLM</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="guide.html" target="_blank"
+                    class="text-sm font-medium text-slate-500 hover:text-brand-600 flex items-center gap-1 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    使用說明
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-5 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto space-y-4">
+
+            <!-- Intro -->
+            <!-- Process Steps -->
+            <div class="py-2">
+                <div class="max-w-4xl mx-auto px-4">
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-brand-100 p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+
+                        <!-- Aliang Image -->
+                        <div class="shrink-0 relative z-10">
+                            <img src="Aliang.png" alt="Aliang"
+                                class="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover shadow-md border-4 border-white ring-2 ring-brand-100">
+                        </div>
+
+                        <!-- Steps -->
+                        <div
+                            class="flex-1 flex flex-wrap justify-between items-center gap-4 md:gap-6 relative z-10 w-full">
+                            <!-- Step 1 -->
+                            <div class="flex flex-col items-center gap-2 group flex-1">
+                                <div
+                                    class="w-20 h-20 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 shadow-sm border border-blue-100 group-hover:scale-105 transition-transform">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700 text-center">1. 上傳素材</span>
+                            </div>
+
+                            <!-- Arrow -->
+                            <svg class="hidden md:block w-4 h-4 text-slate-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+
+                            <!-- Step 2 -->
+                            <div class="flex flex-col items-center gap-2 group flex-1">
+                                <div
+                                    class="w-20 h-20 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100 group-hover:scale-105 transition-transform">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700 text-center">2. 生成結構</span>
+                            </div>
+
+                            <!-- Arrow -->
+                            <svg class="hidden md:block w-4 h-4 text-slate-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+
+                            <!-- Step 3 -->
+                            <div class="flex flex-col items-center gap-2 group flex-1">
+                                <div
+                                    class="w-20 h-20 flex items-center justify-center rounded-xl bg-green-50 text-green-600 shadow-sm border border-green-100 group-hover:scale-105 transition-transform">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700 text-center">3. 匯入 NBLM</span>
+                            </div>
+
+                            <!-- Arrow -->
+                            <svg class="hidden md:block w-4 h-4 text-slate-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+
+                            <!-- Step 4 -->
+                            <div class="flex flex-col items-center gap-2 group flex-1">
+                                <div
+                                    class="w-20 h-20 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 shadow-sm border border-amber-100 group-hover:scale-105 transition-transform">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-bold text-slate-700 text-center">4. 生成簡報</span>
+                            </div>
+                        </div>
+
+                        <!-- Decoration -->
+                        <div
+                            class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-50 rounded-full blur-3xl opacity-50 pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute -left-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl opacity-50 pointer-events-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast Container -->
+            <!-- Toast Container (Centered Top) -->
+            <div id="toast-container"
+                class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-3 pointer-events-none w-full max-w-lg px-4">
+            </div>
+
+            <!-- Main Layout Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mt-4">
+
+                <!-- Left Column: Settings (30%) -->
+                <div class="lg:col-span-3 flex flex-col">
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6 lg:h-full flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <span class="p-1.5 bg-slate-100 text-slate-600 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                        </path>
+                                    </svg>
+                                </span>
+                                參數設定
+                            </h3>
+                            <button id="settings-btn"
+                                class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                    </path>
+                                </svg>
+                                AI 設定
+                            </button>
+                        </div>
+                        <!-- Settings Accordions -->
+                        <div class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2 pb-4">
+
+                            <!-- Group 1: Content & Structure (Open by default) -->
+                            <details id="content-structure-group"
+                                class="bg-slate-50 rounded-xl border border-slate-200 group overflow-hidden shadow-sm"
+                                open>
+                                <summary
+                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm list-none outline-none">
+                                    <span class="flex items-center gap-2">
+                                        📦 內容與架構
+                                    </span>
+                                    <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </summary>
+                                <div class="px-5 pb-5 pt-2 space-y-4 border-t border-slate-100 bg-slate-50">
+                                    <!-- Identity (Speaker Persona) -->
+                                    <div class="space-y-2">
+                                        <label for="identity" class="block text-sm font-semibold text-slate-700">講者身分
+                                            (Speaker Persona)</label>
+                                        <select id="identity"
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            <option value="teacher">👨‍🏫 老師 (教學引導)</option>
+                                            <option value="student">🎓 同學 (報告分享)</option>
+                                            <option value="executive">👔 企業主管 (專業佈達)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Stage (Target Audience) -->
+                                    <div class="space-y-2">
+                                        <label for="stage" class="block text-sm font-semibold text-slate-700">目標受眾
+                                            (Target Audience)</label>
+                                        <select id="stage"
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            <option value="elementary">國小 (生動有趣)</option>
+                                            <option value="junior">國中 (探索互動)</option>
+                                            <option value="high">高中 (邏輯思辨)</option>
+                                            <option value="university">大學 (學術專業)</option>
+                                            <option value="adult">成人 (實用導向)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Goal -->
+                                    <div class="space-y-2">
+                                        <label for="goal"
+                                            class="block text-sm font-semibold text-slate-700">簡報目的架構</label>
+                                        <select id="goal"
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            <option value="general" selected>標準通用 (General)</option>
+                                            <option value="education">教學課程 (Education)</option>
+                                            <option value="business">專案報告 (Business Report)</option>
+                                            <option value="ted">故事演講 (TED Style)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Pages -->
+                                    <div class="space-y-2">
+                                        <label for="pages" class="block text-sm font-semibold text-slate-700">簡報總頁數
+                                        </label>
+                                        <input type="number" id="pages" value="8" min="5" max="60"
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 shadow-sm px-4 text-slate-600 bg-white">
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Group 2: Visual Style & Output -->
+                            <details id="visual-design-group"
+                                class="bg-indigo-50/20 rounded-xl border border-indigo-100 group overflow-hidden shadow-sm">
+                                <summary
+                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm list-none outline-none">
+                                    <span class="flex items-center gap-2">
+                                        🎨 視覺設計與產出
+                                    </span>
+                                    <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </summary>
+                                <div class="px-5 pb-5 pt-3 space-y-5 border-t border-slate-100 bg-slate-50/50">
+                                    <!-- Style -->
+                                    <div class="space-y-2">
+                                        <label for="style"
+                                            class="block text-sm font-semibold text-slate-700">美術視覺風格</label>
+                                        <select id="style"
+                                            class="w-full rounded-lg border-indigo-200 border focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
+                                            <option value="custom">✨ 自訂視覺風格 (Custom)</option>
+                                            <optgroup label="一、 專業與商務邏輯">
+                                                <option value="minimalist">⬜ 極簡主義 (Minimalist)</option>
+                                                <option value="warm_pro" selected>💼 溫暖專業 (Warm Professional)</option>
+                                                <option value="executive">👑 執行長風格 (Executive)</option>
+                                                <option value="data_driven">📊 數據驅動 (Data-Driven)</option>
+                                                <option value="monochrome">⬛ 單色調 (Monochrome)</option>
+                                                <option value="high_contrast">🌗 高對比 (High Contrast)</option>
+                                                <option value="flat_design">🔳 扁平化設計 (Flat Design)</option>
+                                            </optgroup>
+                                            <optgroup label="二、 現代科技與未來派">
+                                                <option value="modern">🚀 現代風 (Modern)</option>
+                                                <option value="apple_style">🍎 蘋果風 (Apple Style)</option>
+                                                <option value="dark_mode">🌙 深色模式 (Dark Mode)</option>
+                                                <option value="minimal_tech">🤖 極簡科技 (Minimalist Tech)</option>
+                                                <option value="cyberpunk">🌃 賽博龐克 (Cyberpunk)</option>
+                                                <option value="neon_glow">💡 霓虹發光 (Neon Glow)</option>
+                                            </optgroup>
+                                            <optgroup label="三、 UI 介面與材質質感">
+                                                <option value="glassmorphism">🧊 玻璃擬態 (Glassmorphism)</option>
+                                                <option value="liquid_glass">💧 液態玻璃 (Liquid Glass)</option>
+                                                <option value="neumorphism">🔘 新擬物化 (Neumorphism)</option>
+                                                <option value="material_design">🗂️ 質感設計 (Material Design)</option>
+                                            </optgroup>
+                                            <optgroup label="四、 敘事與資訊視覺化">
+                                                <option value="visual_story">📖 視覺敘事 (Visual Story)</option>
+                                                <option value="timeline">⏳ 時間軸 (Timeline)</option>
+                                                <option value="infographic">📉 資訊圖表 (Infographic)</option>
+                                            </optgroup>
+                                            <optgroup label="五、 藝術美學與次文化潮流">
+                                                <option value="luxury_aesthetic">💎 奢華美學 (Luxury Aesthetic)</option>
+                                                <option value="retro_poster">📢 復古海報 (Retro Poster)</option>
+                                                <option value="neo_brutalism">🧱 新粗獷主義 (Neo-Brutalism)</option>
+                                                <option value="memphis_design">〰️ 孟菲斯設計 (Memphis Design)</option>
+                                                <option value="y2k_aesthetic">💿 千禧風 (Y2K Aesthetic)</option>
+                                                <option value="retro_collage">🎞️ 復古拼貼 (Retro Collage)</option>
+                                                <option value="punk_collage">🎸 龐克拼貼 (Punk Collage)</option>
+                                            </optgroup>
+                                            <optgroup label="六、 溫馨生活與插畫風格">
+                                                <option value="scandinavian">🌲 北歐風 (Scandinavian)</option>
+                                                <option value="vintage">📻 復古風 (Retro / Vintage)</option>
+                                                <option value="soft_pastel">🌸 粉彩柔和 (Soft Pastel)</option>
+                                                <option value="watercolor">🎨 手繪水彩 (Watercolor)</option>
+                                                <option value="playful">🎈 趣味風 (Playful)</option>
+                                                <option value="cute_q">🧸 Q版可愛 (Q-Cute)</option>
+                                                <option value="hand_drawn">✏️ 溫馨手繪 (Warm Hand-drawn)</option>
+                                                <option value="clay_3d">🧱 黏土風 (Clay 3D)</option>
+                                                <option value="edu_comic">💭 教育漫畫 (Educational Comic)</option>
+                                                <option value="paper_cut">✂️ 剪紙藝術 (Paper Cut)</option>
+                                            </optgroup>
+                                        </select>
+                                        <!-- Custom Style Input (Hidden by default) -->
+                                        <div id="custom-style-container"
+                                            class="hidden mt-2 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
+                                            <label for="custom-style-input"
+                                                class="block text-sm font-semibold text-slate-700 mb-2">自訂風格指令</label>
+                                            <textarea id="custom-style-input" rows="3"
+                                                class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 shadow-sm text-slate-600 text-sm resize-none"
+                                                placeholder="請描述您想要的風格（例如：復古拍立得風格、極簡黑白配上霓虹粉紅...）"></textarea>
+
+                                            <div class="flex flex-wrap items-center justify-between gap-2 mt-3">
+                                                <div class="flex gap-2">
+                                                    <button id="save-custom-style-btn"
+                                                        class="px-3 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded hover:bg-brand-700 transition-colors shadow-sm">
+                                                        💾 儲存至本機
+                                                    </button>
+                                                    <button id="export-custom-style-btn"
+                                                        class="px-3 py-1.5 bg-slate-200 text-slate-700 text-xs font-semibold rounded hover:bg-slate-300 transition-colors shadow-sm">
+                                                        📤 匯出風格檔
+                                                    </button>
+                                                </div>
+                                                <div class="relative">
+                                                    <button
+                                                        class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-semibold rounded hover:bg-slate-50 transition-colors shadow-sm"
+                                                        onclick="document.getElementById('import-custom-style-input').click()">
+                                                        📥 匯入風格檔
+                                                    </button>
+                                                    <input type="file" id="import-custom-style-input" class="hidden"
+                                                        accept=".json">
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-right">
+                                                <a href="#" id="download-style-template-btn"
+                                                    class="text-[11px] text-brand-600 hover:text-brand-800 underline">下載空白風格檔範本
+                                                    (.json)</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- NotebookLM Export Mode Toggle -->
+                                    <div class="space-y-2 pt-2 border-t border-indigo-100/50">
+                                        <label for="export-mode" class="block text-sm font-semibold text-slate-700">YAML
+                                            匯出模式</label>
+                                        <select id="export-mode"
+                                            class="w-full rounded-lg border-indigo-200 border focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-3 shadow-sm text-slate-600 text-sm bg-white">
+                                            <option value="clean" selected>📄 潔淨內容 (高自由度)</option>
+                                            <option value="rich">🎨 豐富指令 (多頁控制)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Auto-append Conclusion Toggle -->
+                                    <div class="flex items-center justify-between pt-2 border-t border-indigo-100/50">
+                                        <div>
+                                            <label for="auto-conclusion"
+                                                class="text-sm font-semibold text-slate-700 block cursor-pointer">自動加結語頁</label>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">強制在簡報最後加上深度省思頁</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="auto-conclusion" class="sr-only peer">
+                                            <div
+                                                class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500">
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Deep Optimization Toggle -->
+                                    <div class="flex items-center justify-between pt-2 border-t border-indigo-100/50">
+                                        <div>
+                                            <label for="deep-optimization"
+                                                class="text-sm font-semibold text-slate-700 block cursor-pointer">AI
+                                                深度優化</label>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">執行二次邏輯檢查與排版修訂</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="deep-optimization" class="sr-only peer">
+                                            <div
+                                                class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500">
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Workspace (70%) -->
+                <div class="lg:col-span-7 flex flex-col">
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6 h-full flex flex-col">
+
+                        <!-- Smart Input Area -->
+                        <div class="space-y-3 flex-1 flex flex-col">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                    <span class="p-1.5 bg-brand-100 text-brand-600 rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                    內容輸入與素材上傳
+                                </h3>
+                                <span
+                                    class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">支援圖文與檔案混和輸入</span>
+                            </div>
+
+                            <!-- Mode Tabs -->
+                            <div class="flex border-b border-slate-200 mb-0 shrink-0">
+                                <button id="tab-auto"
+                                    class="px-6 py-3 text-sm font-medium text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors">
+                                    ✨ AI 自動生成
+                                </button>
+                                <button id="tab-direct"
+                                    class="px-6 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none transition-colors">
+                                    📝 現有大綱轉檔
+                                </button>
+                            </div>
+
+                            <div id="smart-input-container"
+                                class="relative transition-all duration-300 flex-1 flex flex-col">
+                                <!-- Default Large Drop Zone & Text Area -->
+                                <div id="drop-zone"
+                                    class="relative group cursor-text min-h-[240px] border-2 border-dashed border-slate-300 rounded-b-xl rounded-tr-xl bg-slate-50 hover:bg-white hover:border-brand-400 transition-all flex-1 flex flex-col">
+                                    <textarea id="main-input"
+                                        class="w-full h-full flex-1 bg-transparent p-6 resize-none focus:outline-none text-slate-700 placeholder-slate-400 text-base leading-relaxed z-10 overflow-y-auto custom-scrollbar"></textarea>
+
+                                    <!-- Visual Cue (Hidden when has content) -->
+                                    <div id="input-placeholder"
+                                        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity z-20">
+                                        <div id="upload-trigger-btn"
+                                            class="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all">
+                                            <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm text-slate-500 font-medium text-center">拖曳檔案至此(20MB內)，支援
+                                            PDF、TXT、MD、圖片檔<br>或點擊文字框開始打字</p>
+                                    </div>
+
+                                    <input type="file" id="file-upload" class="hidden" multiple
+                                        accept="image/*,.txt,.md,.pdf,application/json">
+                                </div>
+
+                                <!-- Gallery View (Appears via JS) -->
+                                <div id="preview-gallery" class="hidden mt-2 flex flex-wrap gap-2">
+                                    <!-- Thumbnails will be injected here -->
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Actions -->
+                        <div class="pt-4 flex items-center justify-between gap-4">
+                            <button id="clear-btn" type="button"
+                                class="text-slate-400 hover:text-red-500 text-sm font-medium px-4 py-2 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                清空內容
+                            </button>
+                            <button id="generate-btn"
+                                class="flex-1 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all flex items-center justify-center gap-2 group ring-4 ring-brand-500/20">
+                                <span>🚀 開始生成簡報內容</span>
+                                <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loader (Popup Modal) -->
+            <div id="loader" class="hidden fixed inset-0 z-[60] flex items-center justify-center transition-opacity">
+                <div
+                    class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 flex flex-col items-center text-center border border-slate-100 transform transition-all scale-100">
+                    <div class="w-16 h-16 border-4 border-slate-100 border-t-brand-500 rounded-full animate-spin mb-6">
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 tracking-tight mb-2">AI 正在原子化您的教材...</h3>
+                    <p class="text-slate-500 text-sm animate-pulse mb-6">正在進行深度語意分析與結構重組</p>
+
+                    <button id="cancel-gen-btn"
+                        class="px-5 py-2 rounded-full border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all text-sm font-medium">
+                        取消生成
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section (Hidden by default) -->
+            <div id="results-area" class="hidden max-w-7xl mx-auto space-y-8 animate-fade-in-up">
+
+                <!-- NotebookLM Tutorial Section -->
+                <div
+                    class="bg-gradient-to-br from-indigo-50 to-brand-50 rounded-xl border border-brand-100 p-6 mb-8 relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-brand-100 rounded-full blur-2xl opacity-50">
+                    </div>
+
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span
+                            class="bg-brand-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">?</span>
+                        接下來該怎麼做？ (NotebookLM 轉檔教學)
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-brand-100 flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+                            <div
+                                class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-slate-700 mb-1">1. 下載施工圖</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                點擊下方的 <span class="font-mono text-brand-600 bg-brand-50 px-1 rounded">下載資料
+                                    (.yaml)</span> 按鈕。<br>這份 YAML 檔包含了完整的頁數結構與視覺指令。
+                            </p>
+                        </div>
+
+                        <div
+                            class="hidden md:flex absolute top-1/2 left-1/3 -translate-y-1/2 -translate-x-1/2 text-slate-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-brand-100 flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+                            <div
+                                class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-slate-700 mb-1">2. 上傳至 NotebookLM</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                打開 <a href="https://notebooklm.google.com/" target="_blank"
+                                    class="text-brand-600 hover:underline">Google NotebookLM</a>，建立新筆記本。<br>點擊
+                                <strong>"新增來源"</strong> 並上傳剛剛下載的 YAML 檔。
+                            </p>
+                        </div>
+
+                        <div
+                            class="hidden md:flex absolute top-1/2 right-1/3 -translate-y-1/2 translate-x-1/2 text-slate-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-brand-100 flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+                            <div
+                                class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-slate-700 mb-1">3. 一鍵生成內容</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                <strong>生成語音</strong>：直接點擊 "語音摘要"。<br>
+                                <strong>生成簡報</strong>：直接點擊 "簡報"，再點擊「生成」。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div
+                    class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Editor
+                            Mode</span>
+                        <p class="text-sm text-slate-500 hidden sm:block">左側可直接編輯，右側資料會即時同步</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="dl-markdown"
+                            class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            下載大綱 (.md)
+                        </button>
+                        <button id="dl-yaml"
+                            class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            下載資料 (.yaml)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Editable Outline -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <span>📝</span> 簡報大綱編輯器
+                            </h2>
+                        </div>
+                        <div id="output-outline" contenteditable="true"
+                            class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 h-[600px] outline-none focus:ring-2 focus:ring-brand-500/20 prose prose-slate max-w-none text-slate-700 overflow-y-auto custom-scrollbar">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Real-time Data -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <span>👀</span> YAML 預覽
+                            </h2>
+                        </div>
+
+                        <!-- YAML Block -->
+                        <div
+                            class="bg-slate-900 rounded-xl shadow-lg border border-slate-700 overflow-hidden flex flex-col h-[600px]">
+                            <div
+                                class="bg-slate-800/50 px-4 py-3 border-b border-slate-700 flex justify-between items-center shrink-0">
+                                <div class="flex-1"></div>
+                                <div class="flex gap-2">
+                                    <button id="copy-yaml"
+                                        class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded transition-colors">
+                                        複製純 YAML
+                                    </button>
+                                </div>
+                            </div>
+                            <pre
+                                class="flex-1 p-4 overflow-auto custom-scrollbar"><code id="output-yaml" class="font-mono text-sm text-green-400"># 您的資料將在此生成...</code></pre>
+
+                            <!-- Talk-Time Estimator Dashboard (Hidden until generation) -->
+                            <div id="stats-dashboard"
+                                class="hidden shrink-0 border-t border-slate-700 bg-slate-800 p-4 text-xs text-slate-300">
+                                <div class="grid grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <p class="text-slate-500 mb-1">總頁數</p>
+                                        <p class="text-lg font-bold text-white"><span id="stat-pages">0</span> 頁</p>
+                                    </div>
+                                    <div class="border-x border-slate-700">
+                                        <p class="text-slate-500 mb-1">估計中文字數</p>
+                                        <p class="text-lg font-bold text-white"><span id="stat-words">0</span> 字</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-slate-500 mb-1">預估演講時間 ⏱️</p>
+                                        <p class="text-lg font-bold text-brand-400"><span id="stat-time">0</span> 分鐘</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-300"
+            id="settings-panel">
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-800">AI 大腦設定</h3>
+                    <button id="close-settings" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label for="api-key" class="block text-sm font-semibold text-slate-700">Google Gemini API
+                            Key</label>
+                        <button id="toggle-key-visibility"
+                            class="text-slate-400 hover:text-brand-600 transition-colors p-1 rounded-md hover:bg-slate-100 flex items-center gap-1"
+                            title="顯示/隱藏 API Key">
+                            <span class="text-xs">👁️</span>
+                        </button>
+                    </div>
+                    <div class="relative group">
+                        <textarea id="api-key" placeholder="貼上您的 API Keys (一行一組，系統將隨機輪替使用)"
+                            class="w-full h-32 rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 p-3 shadow-sm text-xs sm:text-sm text-slate-600 font-mono resize-none text-security-disc transition-all"
+                            spellcheck="false"></textarea>
+                    </div>
+                    <p class="text-xs text-slate-500">
+                        支援多組 Key 輪替以提升穩定性。您的 Key 僅會儲存在瀏覽器本地端。
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                            class="text-brand-600 hover:underline">免費申請 Key &rarr;</a>
+                    </p>
+                </div>
+
+                <div class="pt-2">
+                    <button id="save-key-btn"
+                        class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                        儲存並啟用 AI 大腦
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div
+            class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 p-6 space-y-4">
+            <div class="text-center space-y-2">
+                <div class="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-2">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">確定要清空嗎？</h3>
+                <p class="text-sm text-slate-500">此動作將移除所有已上傳的檔案、輸入的內容與生成的結果，且無法復原。</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button id="confirm-cancel-btn"
+                    class="py-2.5 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors">
+                    取消
+                </button>
+                <button id="confirm-ok-btn"
+                    class="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-colors">
+                    確定清空
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-12">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <p class="text-slate-400 text-sm">20260302 | Antigravity Agent 習作 | Made by <a href="https://bit.ly/Aliang"
+                    target="_blank" class="hover:text-brand-500 transition-colors">ㄚ亮笑長練功坊</a></p>
+        </div>
+    </footer>
+
+    <script type="module" src="js/app.js?v=3.1"></script>
+</body>
+
+</html>
