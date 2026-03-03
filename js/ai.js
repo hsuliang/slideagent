@@ -185,10 +185,9 @@ You must strictly follow this structure.
         "type": "deep_reflection",
         "layout_style": "Discussion Panel",
         "visual_description": "Generate a metaphorical visual for reflection...",
-        "content": {
-          "rebuttal": "Generate a counter-argument or point of reflection based on the presentation topic.",
-          "challenge": "Generate a thought-provoking question for the audience.",
-          "persuasion": "Generate a concluding professional perspective or Call to action."
+          "rebuttal": "請針對簡報主題提出一個繁體中文的反駁觀點或省思。",
+          "challenge": "請對聽眾拋出一個繁體中文的具挑戰性、引發深思的問題。",
+          "persuasion": "請基於上述討論，給出一個繁體中文的專業總結或行動呼籲。"
         }
       }` : ''}
     ]
@@ -261,9 +260,9 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
         "layout_style": "Discussion Panel",
         "visual_description": "Metaphorical visual for reflection...",
         "content": {
-          "rebuttal": "Counter-argument or blind spot?",
-          "challenge": "Thought-provoking question?",
-          "persuasion": "Professional perspective/Call to action"
+          "rebuttal": "繁體中文的反駁或盲點分析",
+          "challenge": "繁體中文的提問或挑戰",
+          "persuasion": "繁體中文的專業觀點或行動呼籲"
         }
       }` : ''}
     ]
@@ -484,7 +483,7 @@ ${JSON.stringify(jsonData, null, 2)}
       const typeLabel = {
         cover: '封面頁 (Cover)',
         content_page: '內容頁 (Content)',
-        deep_reflection: '深度省思 (Reflection)'
+        deep_reflection: '深度省思'
       }[slide.type] || slide.type;
 
       html += `<div class="slide-block mb-12 p-6 bg-slate-50 rounded-xl border border-slate-200 hover:shadow-md transition-shadow" data-type="${slide.type}">`;
@@ -505,9 +504,9 @@ ${JSON.stringify(jsonData, null, 2)}
                          </div>`;
       } else if (slide.type === 'deep_reflection') {
         html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-red-50 p-4 rounded-lg"><h4 class="font-bold text-red-800 mb-2">反駁 (Rebuttal)</h4><p class="text-sm text-red-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="rebuttal">${slide.content.rebuttal}</p></div>
-                            <div class="bg-yellow-50 p-4 rounded-lg"><h4 class="font-bold text-yellow-800 mb-2">挑戰 (Challenge)</h4><p class="text-sm text-yellow-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="challenge">${slide.content.challenge}</p></div>
-                            <div class="bg-green-50 p-4 rounded-lg"><h4 class="font-bold text-green-800 mb-2">說服 (Persuasion)</h4><p class="text-sm text-green-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="persuasion">${slide.content.persuasion}</p></div>
+                            <div class="bg-red-50 p-4 rounded-lg"><h4 class="font-bold text-red-800 mb-2">反駁</h4><p class="text-sm text-red-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="rebuttal">${slide.content.rebuttal}</p></div>
+                            <div class="bg-yellow-50 p-4 rounded-lg"><h4 class="font-bold text-yellow-800 mb-2">挑戰</h4><p class="text-sm text-yellow-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="challenge">${slide.content.challenge}</p></div>
+                            <div class="bg-green-50 p-4 rounded-lg"><h4 class="font-bold text-green-800 mb-2">說服</h4><p class="text-sm text-green-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="persuasion">${slide.content.persuasion}</p></div>
                          </div>`;
       } else {
         html += `<div class="space-y-4">

@@ -199,17 +199,26 @@ export const Data = {
         });
 
         // 定義防篡改指令與 V13 視覺防護網 (加入 [META] 標籤與隱藏警語)
+        let ipRule = "";
+        const useIp = UI.elements.useCharacterIp && UI.elements.useCharacterIp.checked;
+        const ipName = UI.elements.characterIpName ? UI.elements.characterIpName.value.trim() : "";
+        if (useIp) {
+            ipRule = `\n    1. 隨機在每張簡報適當的地方加上人物IP${ipName ? `，參考 [${ipName}]` : ''}`;
+        }
+
+        let ruleCounter = useIp ? 2 : 1;
+
         const systemInstructions = `
   system_instructions: |
     [⚠️ SYSTEM META - STRICT TRANSCRIPTION MODE & DESIGN SYSTEM]
     
-    【NotebookLM 簡報生成絕對守則】
-    1. 頁數與結構鐵律：必須嚴格依照 'slides' 陣列的長度製作，嚴禁自行增減頁數、合併頁面或省略任何內容。
-    2. 標題識別：YAML 中 'title' 欄位即為該頁標題。
-    3. 內容忠實性 (CRITICAL)：'content' 內的文字為核心文案，您必須「100% 逐字照抄」。絕對禁止縮寫、改寫、潤飾或發揮創意。
-    4. 佈局與邏輯視覺化（推薦）：若內容包含平行重點或步驟流程，強烈建議捨棄傳統條列式，改用語意清晰的「多欄卡片式網格 (Multi-column Card Grid)」或高對比色塊進行水平排版。
-    5. 視覺美學絕對禁令 (Negative Prompts)：為確保現代高級感，生成設計時絕對禁止使用「漸層(Gradient)」、「發光(Glow)」、「立體浮雕(Bevel)」。禁止高飽和度純色與純黑(#000000)。所有文字方塊邊緣必須保持至少 20% 的呼吸留白。
-    6. 特殊空白保留限制：若 title 或 key_points 內為特殊空白符號 (如 Braille Pattern Blank)，請原封不動地轉錄該符號，絕對不可因為該頁空白而自行「額外新增」任何總結、結語或補充說明。
+    【NotebookLM 簡報生成絕對守則】${ipRule}
+    ${ruleCounter++}. 頁數與結構鐵律：必須嚴格依照 'slides' 陣列的長度製作，嚴禁自行增減頁數、合併頁面或省略任何內容。
+    ${ruleCounter++}. 標題識別：YAML 中 'title' 欄位即為該頁標題。
+    ${ruleCounter++}. 內容忠實性 (CRITICAL)：'content' 內的文字為核心文案，您必須「100% 逐字照抄」。絕對禁止縮寫、改寫、潤飾或發揮創意。
+    ${ruleCounter++}. 佈局與邏輯視覺化（推薦）：若內容包含平行重點或步驟流程，強烈建議捨棄傳統條列式，改用語意清晰的「多欄卡片式網格 (Multi-column Card Grid)」或高對比色塊進行水平排版。
+    ${ruleCounter++}. 視覺美學絕對禁令 (Negative Prompts)：為確保現代高級感，生成設計時絕對禁止使用「漸層(Gradient)」、「發光(Glow)」、「立體浮雕(Bevel)」。禁止高飽和度純色與純黑(#000000)。所有文字方塊邊緣必須保持至少 20% 的呼吸留白。
+    ${ruleCounter++}. 特殊空白保留限制：若 title 或 key_points 內為特殊空白符號 (如 Braille Pattern Blank)，請原封不動地轉錄該符號，絕對不可因為該頁空白而自行「額外新增」任何總結、結語或補充說明。
     (End of System Instructions)
     --------------------------------------------------`;
 

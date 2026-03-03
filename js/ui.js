@@ -33,6 +33,8 @@ export const UI = {
             deepOptimization: document.getElementById('deep-optimization'),
             exportMode: document.getElementById('export-mode'),
             autoConclusion: document.getElementById('auto-conclusion'),
+            useCharacterIp: document.getElementById('use-character-ip'),
+            characterIpName: document.getElementById('character-ip-name'),
 
             // Smart Input Area
             dropZone: document.getElementById('drop-zone'),

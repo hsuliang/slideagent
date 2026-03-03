@@ -376,6 +376,8 @@
                                         </div>
                                     </div>
 
+
+
                                     <!-- NotebookLM Export Mode Toggle -->
                                     <div class="space-y-2 pt-2 border-t border-indigo-100/50">
                                         <label for="export-mode" class="block text-sm font-semibold text-slate-700">YAML
@@ -416,6 +418,47 @@
                                                 class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500">
                                             </div>
                                         </label>
+                                    </div>
+
+                                    <!-- Character IP Option -->
+                                    <div class="pt-2 border-t border-indigo-100/50">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <div class="flex items-center gap-2 block">
+                                                    <label for="use-character-ip"
+                                                        class="text-sm font-semibold text-slate-700 cursor-pointer">加入人物
+                                                        IP</label>
+                                                    <a href="https://52hal.cc/ip" target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="text-[11px] text-brand-600 hover:text-brand-800 underline flex items-center gap-1">
+                                                        人物 IP 產生器
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                                            </path>
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                                <p class="text-[11px] text-slate-500 mt-0.5">隨機在簡報加入人物圖像</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" id="use-character-ip" class="sr-only peer"
+                                                    onchange="document.getElementById('character-ip-input-container').classList.toggle('hidden', !this.checked)">
+                                                <div
+                                                    class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500">
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div id="character-ip-input-container"
+                                            class="hidden mt-3 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
+                                            <label for="character-ip-name"
+                                                class="block text-sm font-semibold text-slate-700 mb-2">人物IP來源名稱</label>
+                                            <input type="text" id="character-ip-name"
+                                                class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 shadow-sm text-slate-600 text-sm"
+                                                placeholder="例如：Pixar style boy, 吉卜力小女孩...">
+                                        </div>
                                     </div>
                                 </div>
                             </details>
