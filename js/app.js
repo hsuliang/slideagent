@@ -127,15 +127,13 @@ const App = {
 
         if (els.dlYamlBtn) {
             els.dlYamlBtn.addEventListener('click', () => {
-                Data.syncToYaml(); // Ensure latest state
-                FileHandler.download(els.outputYaml.textContent, 'presentation.txt', 'text/yaml');
+                UI.handleYamlDownload();
             });
         }
 
         if (els.dlMarkdownBtn) {
             els.dlMarkdownBtn.addEventListener('click', () => {
-                const mdContent = Data.generateMarkdownValues();
-                FileHandler.download(mdContent, 'outline.md', 'text/markdown');
+                Data.downloadMarkdown();
             });
         }
 

@@ -141,6 +141,44 @@
                 <hr class="border-slate-200 mb-8">
                 <details class="group open mb-6">
                     <summary class="flex justify-between items-center cursor-pointer list-none mb-6">
+                        <h2 class="text-2xl font-bold text-slate-900 m-0">🎉 20260304 更新說明</h2>
+                        <span class="transition-transform duration-300 group-open:rotate-180 text-slate-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                    </summary>
+                    <div class="space-y-8">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
+                                <span>🚀</span> 1. 新功能與機制優化
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-3 text-slate-600">
+                                <li><strong>全新機制：</strong>當系統偵測到生成的簡報超過 15 頁並按下「下載 YAML」時，會彈出全新的防呆警告視窗。</li>
+                                <li><strong>指引教學：</strong>教導使用者如何利用 NotebookLM 的上下文能力分段生成。</li>
+                                <li><strong>一鍵複製指令：</strong>新增專屬按鈕，按一下即可複製咒語
+                                    <code>「依據來源內容生成第 XX 頁到第 XX 頁」</code>，大幅降低使用者操作 NotebookLM 的門檻。</li>
+                                <li><strong>原檔保留：</strong>使用者確認後，下載完整的 .txt 原文檔。</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
+                                <span>📝</span> 2. 全新開發：YAML 轉 Markdown 下載器
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-3 text-slate-600">
+                                <li><strong>開發動機：</strong>觀察到使用者有直接閱讀、校閱生成大綱的需求，但純 YAML 格式（夾雜大量的括號與引號）對人類閱讀極不友善。</li>
+                                <li><strong>功能實作：</strong>覆寫了原本的 Markdown
+                                    下載邏輯，自動將封面標題、每頁的副標題、內容重點、排版風格、講者備忘錄，以及結尾的「反駁/挑戰/呼籲」轉化為排版極簡、好讀的繁體中文 Markdown 報告。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+
+                <hr class="border-slate-200 mb-8">
+                <details class="group mb-6">
+                    <summary class="flex justify-between items-center cursor-pointer list-none mb-6">
                         <h2 class="text-2xl font-bold text-slate-900 m-0">🎉 20260303 更新說明</h2>
                         <span class="transition-transform duration-300 group-open:rotate-180 text-slate-400">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +344,7 @@
 
     <footer class="bg-white border-t border-slate-200 py-8 mt-12">
         <div class="max-w-4xl mx-auto px-4 text-center">
-            <p class="text-slate-400 text-sm">20260212 | Antigravity Agent 習作 | <a href="https://bit.ly/Aliang"
+            <p class="text-slate-400 text-sm">20260304 | Antigravity Agent 習作 | <a href="https://bit.ly/Aliang"
                     target="_blank" class="hover:text-brand-500 transition-colors">ㄚ亮笑長練功坊</a></p>
         </div>
     </footer>

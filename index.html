@@ -836,10 +836,73 @@
         </div>
     </div>
 
+    <!-- Split Confirmation Modal -->
+    <div id="split-confirm-modal"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div
+            class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300 p-6 space-y-5">
+            <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">簡報頁數較多提醒</h3>
+                        <p class="text-xs text-slate-500 font-medium">NotebookLM 建議單檔上限約 15 頁</p>
+                    </div>
+                </div>
+                <p id="split-modal-desc" class="text-sm text-slate-600 pt-2 leading-relaxed">
+                    您的簡報共有 <strong id="split-total-pages" class="text-brand-600">20</strong> 頁。若遇到產出錯誤，建議分段生成。方法如下：
+                </p>
+            </div>
+
+            <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-700">
+                <p>1. 下載完整的大綱檔案後上傳至 NotebookLM。</p>
+                <p>2. 按一下簡報生成按鈕右上角的「✏️ (鉛筆)」圖示。</p>
+                <p>3. 輸入以下提示詞：</p>
+
+                <div class="relative mt-2">
+                    <div class="p-3 bg-white border border-slate-200 rounded text-brand-600 font-mono text-xs break-all"
+                        id="split-prompt-text">
+                        依據來源內容生成第 XX 頁到第 XX 頁
+                    </div>
+                    <button id="split-copy-prompt-btn"
+                        class="mt-2 w-full py-1.5 flex items-center justify-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded transition-colors text-xs font-bold">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3">
+                            </path>
+                        </svg>
+                        複製提示詞指令
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button id="split-cancel-btn"
+                    class="py-2.5 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors">
+                    取消
+                </button>
+                <button id="split-ok-btn"
+                    class="py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    原檔下載
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-8 mt-12">
         <div class="max-w-5xl mx-auto px-4 text-center">
-            <p class="text-slate-400 text-sm">20260302 | Antigravity Agent 習作 | Made by <a href="https://bit.ly/Aliang"
+            <p class="text-slate-400 text-sm">20260304 | Antigravity Agent 習作 | Made by <a href="https://bit.ly/Aliang"
                     target="_blank" class="hover:text-brand-500 transition-colors">ㄚ亮笑長練功坊</a></p>
         </div>
     </footer>

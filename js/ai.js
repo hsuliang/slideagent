@@ -159,6 +159,7 @@ The user will provide a presentation outline.
 **Output Format (STRICT JSON SCHEMA):**
 You must strictly follow this structure. 
 ⚠️ **CRITICAL: Every "content_page" MUST have a "title" field in the "content" block.**
+🛑 **CRITICAL: DO NOT under any circumstances generate a "deep_reflection" slide.** Only generate "content_page" slides exactly matching the input text blocks.
 
 {
   "presentation_data": {
@@ -180,16 +181,7 @@ You must strictly follow this structure.
             "Bullet point 2"
           ]
         }
-      }${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? `,
-      {
-        "type": "deep_reflection",
-        "layout_style": "Discussion Panel",
-        "visual_description": "Generate a metaphorical visual for reflection...",
-          "rebuttal": "請針對簡報主題提出一個繁體中文的反駁觀點或省思。",
-          "challenge": "請對聽眾拋出一個繁體中文的具挑戰性、引發深思的問題。",
-          "persuasion": "請基於上述討論，給出一個繁體中文的專業總結或行動呼籲。"
-        }
-      }` : ''}
+      }
     ]
   }
 }
@@ -199,7 +191,7 @@ You must strictly follow this structure.
 2.  **FALLBACK**: If you cannot find a colon-separated title, use the first line of the slide as the \`title\`.
 3.  **VERIFICATION**: Before outputting JSON, check: Does every content slide have a \`title\` field? If not, fix it.
 4.  **MULTI-MEDIA FOCUS**: You have been provided with multiple files. You MUST scan and acknowledge ALL files provided (text, PDF, AND Images). Do NOT ignore images if a PDF is present, and vice versa. Integrate information from ALL sources.
-**IGNORE UI SETTINGS**: Ignore total_pages parameter. Use exact number of slides from input. ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "However, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end of the 'slides' array, taking the total slides to N+1." : "Do NOT add any extra slides."}
+**IGNORE UI SETTINGS**: Ignore total_pages parameter. Use exact number of slides from input. Do NOT add any extra slides.
 
 `;
     } else {
@@ -225,7 +217,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
       "target_audience": "${params.identity}",
       "learning_stage": "${params.stage}",
       "learning_stage": "${params.stage}",
-      "total_pages": ${params.pages},
+      "total_pages": ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages + 1 : params.pages},
       "typography": {
         "title_font": "Font Name",
         "body_font": "Font Name",
@@ -271,7 +263,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
 
 **Directives:**
 1. **Filename**: Create a unique, descriptive filename (under 10 Traditional Chinese characters) representing the specific topic (e.g. "光合作用_國中生物"). Do not include extension.
-2. **Page Discipline**: You MUST generate EXACTLY ${params.pages} slides.  (1 Cover + ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages - 2 + ' Content Pages + 1 Reflection' : params.pages - 1 + ' Content Pages'}).
+2. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}
 3. **Content Depth**: 
    - **Adhere strictly to the Stage Level description above.**
    - "key_points" should be detailed and substantial (avoid short phrases).
@@ -495,27 +487,29 @@ ${JSON.stringify(jsonData, null, 2)}
                      </div>`;
 
       // Content Editing Fields
+      const content = slide.content || {}; // Safety check for malformed JSON
+
       if (slide.type === 'cover') {
         html += `<div class="space-y-4">
                             <div><label class="block text-xs font-semibold text-slate-500 mb-1">主標題 (Title)</label>
-                            <h2 class="text-2xl font-bold text-slate-800 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="title">${slide.content.title}</h2></div>
+                            <h2 class="text-2xl font-bold text-slate-800 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="title">${content.title || '無標題'}</h2></div>
                             <div><label class="block text-xs font-semibold text-slate-500 mb-1">副標題 (Subtitle)</label>
-                            <h3 class="text-xl text-slate-600 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="subtitle">${slide.content.subtitle}</h3></div>
+                            <h3 class="text-xl text-slate-600 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="subtitle">${content.subtitle || ''}</h3></div>
                          </div>`;
       } else if (slide.type === 'deep_reflection') {
         html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-red-50 p-4 rounded-lg"><h4 class="font-bold text-red-800 mb-2">反駁</h4><p class="text-sm text-red-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="rebuttal">${slide.content.rebuttal}</p></div>
-                            <div class="bg-yellow-50 p-4 rounded-lg"><h4 class="font-bold text-yellow-800 mb-2">挑戰</h4><p class="text-sm text-yellow-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="challenge">${slide.content.challenge}</p></div>
-                            <div class="bg-green-50 p-4 rounded-lg"><h4 class="font-bold text-green-800 mb-2">說服</h4><p class="text-sm text-green-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="persuasion">${slide.content.persuasion}</p></div>
+                            <div class="bg-red-50 p-4 rounded-lg"><h4 class="font-bold text-red-800 mb-2">反駁</h4><p class="text-sm text-red-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="rebuttal">${content.rebuttal || ''}</p></div>
+                            <div class="bg-yellow-50 p-4 rounded-lg"><h4 class="font-bold text-yellow-800 mb-2">挑戰</h4><p class="text-sm text-yellow-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="challenge">${content.challenge || ''}</p></div>
+                            <div class="bg-green-50 p-4 rounded-lg"><h4 class="font-bold text-green-800 mb-2">說服</h4><p class="text-sm text-green-900 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="persuasion">${content.persuasion || ''}</p></div>
                          </div>`;
       } else {
         html += `<div class="space-y-4">
                             <div><label class="block text-xs font-semibold text-slate-500 mb-1">標題 (Title)</label>
-                            <h3 class="text-xl font-bold text-slate-800 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="title">${slide.content.title || 'Slide Title'}</h3></div>
+                            <h3 class="text-xl font-bold text-slate-800 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="title">${content.title || 'Slide Title'}</h3></div>
                             <div><label class="block text-xs font-semibold text-slate-500 mb-1">重點 (Key Points)</label>
                             <ul class="list-disc pl-5 space-y-2">`;
 
-        (slide.content.key_points || []).forEach(point => {
+        (content.key_points || []).forEach(point => {
           html += `<li class="text-slate-700 outline-none focus:bg-white p-1 rounded" contenteditable="true" data-field="point">${point}</li>`;
         });
 

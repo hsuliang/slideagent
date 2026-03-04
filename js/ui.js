@@ -69,6 +69,13 @@ export const UI = {
             confirmOkBtn: document.getElementById('confirm-ok-btn'),
             confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
 
+            // Split Modal
+            splitConfirmModal: document.getElementById('split-confirm-modal'),
+            splitTotalPages: document.getElementById('split-total-pages'),
+            splitPagesInput: document.getElementById('split-pages-input'),
+            splitCancelBtn: document.getElementById('split-cancel-btn'),
+            splitOkBtn: document.getElementById('split-ok-btn'),
+
             // API Key Warning Modal
             apikeyModal: document.getElementById('apikey-modal'),
             setupKeyBtn: document.getElementById('setup-key-btn'),
@@ -138,12 +145,72 @@ export const UI = {
         this.closeConfirmModal();
         SlideAgentState.uploadedFiles = [];
         if (this.elements.mainInput) this.elements.mainInput.value = '';
-        if (this.elements.resultsArea) this.elements.resultsArea.classList.add('hidden');
-        this.renderGallery();
-        this.updateInputState();
-        localStorage.removeItem('slideAgent_localHistory');
+        if (this.elements.previewGallery) this.elements.previewGallery.innerHTML = '';
+        if (this.elements.dropZone) this.elements.dropZone.classList.remove('has-files');
 
-        setTimeout(() => this.showToast('內容已清空', 'success'), 300);
+        this.updateInputState();
+
+        if (this.elements.resultsArea) this.elements.resultsArea.classList.add('hidden');
+        if (this.elements.outputOutline) this.elements.outputOutline.innerHTML = '';
+        if (this.elements.outputYaml) this.elements.outputYaml.textContent = '';
+        if (this.elements.statsDashboard) this.elements.statsDashboard.classList.add('hidden');
+
+        SlideAgentState.yamlGenerated = false;
+
+        this.showToast('內容已完全清除', 'success');
+    },
+
+    showSplitConfirmModal(totalPages) {
+        const els = this.elements;
+        if (!els.splitConfirmModal) {
+            Data.downloadYaml(); // Fallback if modal missing
+            return;
+        }
+
+        els.splitTotalPages.innerText = totalPages;
+
+        // Show modal
+        els.splitConfirmModal.classList.remove('hidden');
+        void els.splitConfirmModal.offsetWidth;
+        els.splitConfirmModal.classList.remove('opacity-0');
+        els.splitConfirmModal.querySelector('div').classList.remove('scale-95');
+
+        // Copy Prompt Action
+        const copyBtn = document.getElementById('split-copy-prompt-btn');
+        if (copyBtn) {
+            copyBtn.onclick = () => {
+                const promptText = "依據來源內容生成第 XX 頁到第 XX 頁";
+                navigator.clipboard.writeText(promptText).then(() => {
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = `<span class="text-green-600">✓ 已儲存至剪貼簿</span>`;
+                    copyBtn.classList.replace('bg-slate-200', 'bg-green-100');
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.classList.replace('bg-green-100', 'bg-slate-200');
+                    }, 2000);
+                });
+            };
+        }
+
+        // OK Action - Just download the full file
+        els.splitOkBtn.onclick = () => {
+            this.closeSplitConfirmModal();
+            Data.downloadYaml();
+        };
+
+        // Cancel Action
+        els.splitCancelBtn.onclick = () => {
+            this.closeSplitConfirmModal();
+        };
+    },
+
+    closeSplitConfirmModal() {
+        const els = this.elements;
+        if (els.splitConfirmModal) {
+            els.splitConfirmModal.classList.add('opacity-0');
+            els.splitConfirmModal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => els.splitConfirmModal.classList.add('hidden'), 300);
+        }
     },
 
     updateInputState() {
@@ -357,6 +424,22 @@ export const UI = {
         }
     },
 
+    handleYamlDownload() {
+        if (!SlideAgentState.yamlGenerated) {
+            UI.showToast("請先產出 YAML 內容！", "warning");
+            return;
+        }
+
+        const slidesPerFile = 15;
+        const slideBlocks = document.querySelectorAll('#output-outline .slide-block');
+
+        if (slideBlocks.length > slidesPerFile) {
+            this.showSplitConfirmModal(slideBlocks.length, slidesPerFile);
+        } else {
+            Data.downloadYaml();
+        }
+    },
+
     initTabs() {
         const els = this.elements;
         console.log("Initializing Tabs...", els.tabAuto, els.tabDirect);
@@ -384,12 +467,24 @@ export const UI = {
                 placeholderText = '拖曳檔案至此，支援 PDF、TXT、MD<br>或點擊文字框開始打字';
                 if (contentGroup) contentGroup.classList.remove('hidden');
                 if (visualGroup) visualGroup.removeAttribute('open');
+
+                // Show Auto Conclusion in Auto mode
+                if (els.autoConclusion) {
+                    const autoConcContainer = els.autoConclusion.closest('.flex.items-center.justify-between');
+                    if (autoConcContainer) autoConcContainer.classList.remove('hidden');
+                }
             } else {
                 els.tabAuto.className = "px-6 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none transition-colors";
                 els.tabDirect.className = "px-6 py-3 text-sm font-medium text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors";
                 placeholderText = '拖曳檔案至此,支援PDF、TXT、MD 或點擊文字框貼上簡報大綱';
                 if (contentGroup) contentGroup.classList.add('hidden');
                 if (visualGroup) visualGroup.setAttribute('open', '');
+
+                // Hide Auto Conclusion in Direct mode
+                if (els.autoConclusion) {
+                    const autoConcContainer = els.autoConclusion.closest('.flex.items-center.justify-between');
+                    if (autoConcContainer) autoConcContainer.classList.add('hidden');
+                }
             }
             if (els.inputPlaceholder) els.inputPlaceholder.innerHTML = `
                 <div id="upload-trigger-btn" class="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all">

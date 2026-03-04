@@ -245,47 +245,61 @@ export const Data = {
             if (UI.elements.statTime) UI.elements.statTime.innerText = stats.time;
             UI.elements.statsDashboard.classList.remove('hidden');
         }
+
+        // --- UPDATE STATE ---
+        SlideAgentState.yamlGenerated = true;
     },
 
     generateMarkdownValues() {
-        const { identity, stage, style } = UI.elements;
+        const { style } = UI.elements;
         const container = UI.elements.outputOutline;
         if (!container) return "";
 
+        const safeFilename = SlideAgentState.currentFilename ? SlideAgentState.currentFilename.split('.')[0] : "AI 生成簡報大綱";
+
         const blocks = container.querySelectorAll('.slide-block');
-        let md = `# Presentation Outline\n\n`;
-        md += `- **Theme**: ${style.value}\n- **Audience**: ${identity.value}\n- **Stage**: ${stage.value}\n\n---\n\n`;
+        let md = `# ${safeFilename}\n\n`;
+        md += `> 全域設計風格：${style.value}\n\n---\n\n`;
 
         blocks.forEach((block, index) => {
             const type = block.getAttribute('data-type') || 'content_page';
+            const layout = block.getAttribute('data-layout') || '';
             const visual = block.querySelector('[data-field="visual"]')?.innerText.trim() || '';
 
-            md += `## Slide ${index + 1} (${type})\n`;
-
             if (type === 'cover') {
-                const title = block.querySelector('[data-field="title"]')?.innerText.trim() || '';
+                const title = block.querySelector('[data-field="title"]')?.innerText.trim() || '封面標題';
                 const subtitle = block.querySelector('[data-field="subtitle"]')?.innerText.trim() || '';
-                md += `**Title**: ${title}\n`;
-                md += `**Subtitle**: ${subtitle}\n`;
+                md += `## 第 ${index + 1} 頁：${title}\n\n`;
+                if (subtitle) md += `**副標題**：${subtitle}\n\n`;
             } else if (type === 'deep_reflection') {
+                md += `## 第 ${index + 1} 頁：深度省思\n\n`;
                 const rebuttal = block.querySelector('[data-field="rebuttal"]')?.innerText.trim() || '';
                 const challenge = block.querySelector('[data-field="challenge"]')?.innerText.trim() || '';
                 const persuasion = block.querySelector('[data-field="persuasion"]')?.innerText.trim() || '';
-                md += `**Rebuttal**: ${rebuttal}\n`;
-                md += `**Challenge**: ${challenge}\n`;
-                md += `**Persuasion**: ${persuasion}\n`;
+                if (rebuttal) md += `**反駁與盲點**：${rebuttal}\n\n`;
+                if (challenge) md += `**挑戰與提問**：${challenge}\n\n`;
+                if (persuasion) md += `**行動呼籲**：${persuasion}\n\n`;
             } else {
-                md += `**Key Points**:\n`;
+                const title = block.querySelector('.font-bold.text-slate-800')?.innerText.trim() || `第 ${index + 1} 頁`;
+                md += `## ${title}\n\n`;
                 const points = block.querySelectorAll('[data-field="point"]');
-                points.forEach(p => {
-                    md += `- ${p.innerText.trim()}\n`;
-                });
+                if (points.length > 0) {
+                    points.forEach(p => {
+                        md += `- ${p.innerText.trim()}\n`;
+                    });
+                    md += `\n`;
+                }
             }
 
-            if (visual) {
-                md += `> *Visual Suggestion*: ${visual}\n`;
+            // Add Style and Visual Context
+            if (layout) md += `*排版設定：${layout}*\n`;
+            if (visual) md += `*畫面提示：${visual}*\n\n`;
+
+            const script = block.querySelector('[data-field="script"]')?.innerText.trim();
+            if (script) {
+                md += `> 講者備忘：${script}\n\n`;
             }
-            md += `\n`;
+            md += `---\n\n`;
         });
 
         return md;
@@ -308,6 +322,138 @@ export const Data = {
         }
         const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         return `${title}_${date}.${ext}`;
+    },
+
+    downloadYaml() {
+        const content = UI.elements.outputYaml ? UI.elements.outputYaml.textContent : '';
+        if (!content) return;
+        const filename = this.generateFilename('txt');
+        const blob = new Blob([content], { type: 'text/yaml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    // downloadSplitYaml has been officially removed. Full downloads only from now on.
+
+    downloadMarkdown() {
+        const yamlText = UI.elements.outputYaml ? UI.elements.outputYaml.textContent : '';
+        if (!yamlText) {
+            UI.showToast("沒有可下載的內容", "warning");
+            return;
+        }
+
+        try {
+            let mdContent = "";
+            let baseFilename = "presentation_outline";
+
+            // Extract title
+            const nameMatch = yamlText.match(/suggested_filename:\s*"([^"]+)"/);
+            if (nameMatch && nameMatch[1]) {
+                baseFilename = nameMatch[1].trim();
+                mdContent += `# ${baseFilename}\n\n`;
+            } else {
+                mdContent += `# 簡報大綱\n\n`;
+            }
+
+            // Extract System Instructions
+            const sysInstMatch = yamlText.match(/system_instructions:\s*\|([\s\S]*?)(?=\n\s*global_design:|\n\s*slides:)/);
+            if (sysInstMatch) {
+                // Clean up indentation for markdown
+                const instructions = sysInstMatch[1].replace(/^\s+/gm, '').trim();
+                mdContent += `> **【系統指令與守則】**\n> \n> ${instructions.split('\n').join('\n> ')}\n\n---\n\n`;
+            }
+
+            // Extract Global Design
+            const globalMatch = yamlText.match(/global_design:([\s\S]*?)(?=\n\s*slides:)/);
+            if (globalMatch) {
+                const styleName = globalMatch[1].match(/style_name:\s*"([^"]+)"/);
+                const keywords = globalMatch[1].match(/visual_keywords:\s*"([^"]+)"/);
+                if (styleName) mdContent += `**全域視覺風格**：${styleName[1]}\n`;
+                if (keywords) mdContent += `**全域視覺關鍵字**：${keywords[1]}\n`;
+                mdContent += `\n---\n\n`;
+            }
+
+            // Extract slides
+            const headerMatch = yamlText.match(/^([\s\S]*?^[\s]*slides:\s*\n)/m);
+            if (headerMatch) {
+                const header = headerMatch[0];
+                const body = yamlText.substring(header.length);
+                let slides = body.split(/(?:^|\n)(?=\s*-\s+type:)/);
+                slides = slides.map(s => s.trim()).filter(s => s.length > 0);
+
+                slides.forEach((slide, idx) => {
+                    const titleMatch = slide.match(/title:\s*"?([^\n"]+)"?/);
+                    const title = titleMatch ? titleMatch[1].trim() : `第 ${idx + 1} 頁`;
+                    mdContent += `## ${title}\n\n`;
+
+                    const layoutMatch = slide.match(/layout_style:\s*"?([^\n"]+)"?/);
+                    if (layoutMatch) {
+                        mdContent += `*排版設定：${layoutMatch[1].trim()}*\n`;
+                    }
+
+                    const visualMatch = slide.match(/visual_description:\s*"?([^\n"]+)"?/);
+                    if (visualMatch) {
+                        mdContent += `*畫面提示：${visualMatch[1].trim()}*\n\n`;
+                    } else {
+                        mdContent += `\n`;
+                    }
+
+                    // Extract Key points using basic regex scanning line by line
+                    const pointsMatch = slide.match(/key_points:([\s\S]*?)(?=(?:-\s+type:|[\w]+:|$))/);
+                    if (pointsMatch) {
+                        const pointsSection = pointsMatch[1];
+                        const points = [...pointsSection.matchAll(/^\s*-\s+"?([^"\n]+)"?/gm)].map(m => m[1]);
+                        if (points.length > 0) {
+                            points.forEach(p => mdContent += `- ${p.trim()}\n`);
+                            mdContent += '\n';
+                        }
+                    }
+
+                    const scriptMatch = slide.match(/script:\s*"?([^\n"]+)"?/);
+                    if (scriptMatch) {
+                        mdContent += `> 講者備忘：${scriptMatch[1].trim()}\n\n`;
+                    }
+
+                    const rebuttalMatch = slide.match(/rebuttal:\s*"?([^\n"]+)"?/);
+                    if (rebuttalMatch) mdContent += `**反駁與盲點**：${rebuttalMatch[1].trim()}\n\n`;
+
+                    const challengeMatch = slide.match(/challenge:\s*"?([^\n"]+)"?/);
+                    if (challengeMatch) mdContent += `**挑戰與提問**：${challengeMatch[1].trim()}\n\n`;
+
+                    const persuasionMatch = slide.match(/persuasion:\s*"?([^\n"]+)"?/);
+                    if (persuasionMatch) mdContent += `**行動呼籲**：${persuasionMatch[1].trim()}\n\n`;
+
+                    mdContent += `---\n\n`;
+                });
+            } else {
+                mdContent += yamlText; // Fallback if format is entirely unmatched
+            }
+
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const finalFilename = `${baseFilename}_${date}.md`;
+
+            const blob = new Blob([mdContent], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = finalFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (UI.showToast) UI.showToast("Markdown 下載成功", "success");
+
+        } catch (e) {
+            console.error("MD Export Error:", e);
+            if (UI.showToast) UI.showToast("轉換 Markdown 失敗", "error");
+        }
     },
 
     calculateStats(yamlText) {
