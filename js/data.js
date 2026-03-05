@@ -195,6 +195,7 @@ export const Data = {
                 points.forEach(p => {
                     slidesYaml += `\n          - "${p.innerText.trim().replace(/"/g, '\\"')}"`;
                 });
+
             }
         });
 
@@ -379,60 +380,49 @@ export const Data = {
                 mdContent += `\n---\n\n`;
             }
 
-            // Extract slides
-            const headerMatch = yamlText.match(/^([\s\S]*?^[\s]*slides:\s*\n)/m);
-            if (headerMatch) {
-                const header = headerMatch[0];
-                const body = yamlText.substring(header.length);
-                let slides = body.split(/(?:^|\n)(?=\s*-\s+type:)/);
-                slides = slides.map(s => s.trim()).filter(s => s.length > 0);
+            // Extract Slides from DOM directly
+            const container = UI.elements.outputOutline;
+            if (container) {
+                const blocks = container.querySelectorAll('.slide-block');
+                blocks.forEach((block, idx) => {
+                    const type = block.getAttribute('data-type') || 'content_page';
 
-                slides.forEach((slide, idx) => {
-                    const titleMatch = slide.match(/title:\s*"?([^\n"]+)"?/);
-                    const title = titleMatch ? titleMatch[1].trim() : `第 ${idx + 1} 頁`;
-                    mdContent += `## ${title}\n\n`;
-
-                    const layoutMatch = slide.match(/layout_style:\s*"?([^\n"]+)"?/);
-                    if (layoutMatch) {
-                        mdContent += `*排版設定：${layoutMatch[1].trim()}*\n`;
-                    }
-
-                    const visualMatch = slide.match(/visual_description:\s*"?([^\n"]+)"?/);
-                    if (visualMatch) {
-                        mdContent += `*畫面提示：${visualMatch[1].trim()}*\n\n`;
+                    if (type === 'cover') {
+                        const title = block.querySelector('[data-field="title"]')?.innerText.trim() || '封面標題';
+                        mdContent += `## 封面：${title}\n\n`;
+                        const subtitle = block.querySelector('[data-field="subtitle"]')?.innerText.trim() || '';
+                        if (subtitle) mdContent += `**副標題**：${subtitle}\n\n`;
+                    } else if (type === 'deep_reflection') {
+                        mdContent += `## 結語與省思\n\n`;
+                        const rebuttal = block.querySelector('[data-field="rebuttal"]')?.innerText.trim() || '';
+                        if (rebuttal) mdContent += `**反駁與盲點**：${rebuttal}\n\n`;
+                        const challenge = block.querySelector('[data-field="challenge"]')?.innerText.trim() || '';
+                        if (challenge) mdContent += `**挑戰與提問**：${challenge}\n\n`;
+                        const persuasion = block.querySelector('[data-field="persuasion"]')?.innerText.trim() || '';
+                        if (persuasion) mdContent += `**行動呼籲**：${persuasion}\n\n`;
                     } else {
-                        mdContent += `\n`;
-                    }
+                        const title = block.querySelector('[data-field="title"]')?.innerText.trim() || `第 ${idx + 1} 頁`;
+                        mdContent += `## ${title}\n\n`;
 
-                    // Extract Key points using basic regex scanning line by line
-                    const pointsMatch = slide.match(/key_points:([\s\S]*?)(?=(?:-\s+type:|[\w]+:|$))/);
-                    if (pointsMatch) {
-                        const pointsSection = pointsMatch[1];
-                        const points = [...pointsSection.matchAll(/^\s*-\s+"?([^"\n]+)"?/gm)].map(m => m[1]);
+                        const layout = block.querySelector('.font-mono')?.textContent || block.getAttribute('data-layout') || '';
+                        const visual = block.querySelector('[data-field="visual"]')?.innerText.trim() || '';
+                        if (layout) mdContent += `*排版設定：${layout}*\n`;
+                        if (visual) mdContent += `*畫面提示：${visual}*\n\n`;
+
+                        const points = block.querySelectorAll('[data-field="point"]');
                         if (points.length > 0) {
-                            points.forEach(p => mdContent += `- ${p.trim()}\n`);
+                            points.forEach(p => mdContent += `- ${p.innerText.trim()}\n`);
                             mdContent += '\n';
+                        }
+
+                        const scriptText = block.querySelector('[data-field="script"]')?.innerText.trim() || '';
+                        if (scriptText) {
+                            mdContent += `> 講者備忘：\n> ${scriptText.split('\n').join('\n> ')}\n\n`;
                         }
                     }
 
-                    const scriptMatch = slide.match(/script:\s*"?([^\n"]+)"?/);
-                    if (scriptMatch) {
-                        mdContent += `> 講者備忘：${scriptMatch[1].trim()}\n\n`;
-                    }
-
-                    const rebuttalMatch = slide.match(/rebuttal:\s*"?([^\n"]+)"?/);
-                    if (rebuttalMatch) mdContent += `**反駁與盲點**：${rebuttalMatch[1].trim()}\n\n`;
-
-                    const challengeMatch = slide.match(/challenge:\s*"?([^\n"]+)"?/);
-                    if (challengeMatch) mdContent += `**挑戰與提問**：${challengeMatch[1].trim()}\n\n`;
-
-                    const persuasionMatch = slide.match(/persuasion:\s*"?([^\n"]+)"?/);
-                    if (persuasionMatch) mdContent += `**行動呼籲**：${persuasionMatch[1].trim()}\n\n`;
-
                     mdContent += `---\n\n`;
                 });
-            } else {
-                mdContent += yamlText; // Fallback if format is entirely unmatched
             }
 
             const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -453,6 +443,76 @@ export const Data = {
         } catch (e) {
             console.error("MD Export Error:", e);
             if (UI.showToast) UI.showToast("轉換 Markdown 失敗", "error");
+        }
+    },
+
+    downloadPodcastTranscript() {
+        const container = UI.elements.outputOutline;
+        if (!container) {
+            UI.showToast("沒有可用內容下載！", "warning");
+            return;
+        }
+
+        try {
+            let scriptContent = "";
+            let baseFilename = SlideAgentState.currentFilename ? SlideAgentState.currentFilename.split('.')[0] : "podcast_script";
+
+            scriptContent += `【專案報告主題】\n${baseFilename}\n\n`;
+            scriptContent += `===============================================\n\n`;
+
+            const blocks = container.querySelectorAll('.slide-block');
+            blocks.forEach((block, idx) => {
+                const type = block.getAttribute('data-type') || 'content_page';
+
+                if (type === 'cover') {
+                    const titleNode = block.querySelector('[data-field="title"]');
+                    const titleText = titleNode ? titleNode.innerText.trim() : `引言介紹`;
+                    scriptContent += `## 章節：${titleText}\n\n`;
+                } else if (type === 'deep_reflection') {
+                    scriptContent += `## 章節：專案總結與反思\n\n`;
+                    const rebuttal = block.querySelector('[data-field="rebuttal"]')?.innerText.trim() || '';
+                    if (rebuttal) scriptContent += `潛在挑戰分析：\n${rebuttal}\n\n`;
+                    const persuasion = block.querySelector('[data-field="persuasion"]')?.innerText.trim() || '';
+                    if (persuasion) scriptContent += `建議行動方案：\n${persuasion}\n\n`;
+                } else {
+                    const titleNode = block.querySelector('[data-field="title"]');
+                    const titleText = titleNode ? titleNode.innerText.trim() : `第 ${idx + 1} 節`;
+                    scriptContent += `## 章節：${titleText}\n\n`;
+
+                    const points = block.querySelectorAll('[data-field="point"]');
+                    if (points.length > 0) {
+                        scriptContent += `重點摘要：\n`;
+                        points.forEach(p => scriptContent += `- ${p.innerText.trim()}\n`);
+                        scriptContent += '\n';
+                    }
+
+                    const scriptNode = block.querySelector('[data-field="script"]');
+                    if (scriptNode) {
+                        scriptContent += `深入解說內容：\n${scriptNode.innerText.trim()}\n\n`;
+                    }
+                }
+
+                scriptContent += `-----------------------------------------------\n\n`;
+            });
+
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            const finalFilename = `${baseFilename}_廣播稿_${date}.txt`;
+
+            const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = finalFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (UI.showToast) UI.showToast("廣播稿下載成功", "success");
+
+        } catch (e) {
+            console.error("Podcast Transcript Export Error:", e);
+            if (UI.showToast) UI.showToast("轉換廣播稿失敗", "error");
         }
     },
 

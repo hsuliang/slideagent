@@ -137,6 +137,55 @@ const App = {
             });
         }
 
+        // --- NEW V11 FEATURE: Podcast Prompt & Transcript Generator ---
+        if (els.podcastDownloadBtn) {
+            els.podcastDownloadBtn.addEventListener('click', () => {
+                Data.downloadPodcastTranscript();
+            });
+        }
+
+        if (els.podcastCopyBtn) {
+            els.podcastCopyBtn.addEventListener('click', () => {
+                const settings = {
+                    identity: UI.elements.identity ? UI.elements.identity.value : 'teacher',
+                    tone: UI.elements.tone ? UI.elements.tone.value : 'standard'
+                };
+
+                const personas = {
+                    "teacher": "專業且熱情引導的老師",
+                    "student": "充滿好奇心且樂於分享的同學",
+                    "executive": "講求效率與重點的高階主管"
+                };
+
+                const tones = {
+                    "standard": "標準客觀、口齒清晰",
+                    "humorous": "幽默風趣、會適時使用比喻、像說書人一樣生動",
+                    "inspirational": "熱血激勵、充滿正能量、語氣高昂吸引人",
+                    "academic": "學術嚴謹、用詞專業精確、論述合乎邏輯",
+                    "friendly": "親切溫暖、像朋友聊天一樣沒有距離感"
+                };
+
+                const myPersona = personas[settings.identity] || "專業分享者";
+                const myTone = tones[settings.tone] || "標準客觀";
+
+                // --- NEW WORKFLOW (V11): Ask NotebookLM to read the CLEAN text file ---
+                const prompt = `
+請針對上傳的專案報告，生成一段 Audio Overview 雙人對談：
+
+1. 角色與語氣設定：
+請讓兩位主持人化身為「${myPersona}」。語氣必須是「${myTone}」，彼此熱情且自然地互動，像是在錄製一場精彩的專業廣播。
+
+2. 對話核心：
+請聚焦於文檔中的「深入解說內容」與「重點摘要」來展開討論，探討內容提到的關鍵挑戰與解決方案。建議依照文稿順序討論說明。
+
+3. 深度反思：
+除了介紹表面資訊，請深入探討這些內容背後的「核心價值」與「對未來的啟發」。請用最口語、放鬆的 Podcast 閒聊節奏串接資訊，自由延伸。
+            `.trim();
+
+                UI.copyToClipboard(prompt, '✅ 語音對談指令已複製！請至 NotebookLM 指令框貼上');
+            });
+        }
+
         // Custom Style Management
         if (els.saveCustomStyleBtn) {
             els.saveCustomStyleBtn.addEventListener('click', (e) => {

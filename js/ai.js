@@ -111,6 +111,16 @@ export const AI = {
     };
     const stageContext = stageMap[params.stage] || stageMap['adult'];
 
+    // Tone Specific Context (New V11 Feature)
+    const toneMap = {
+      "standard": "Tone: Standard, objective, clear, and balanced. Avoids excessive emotion.",
+      "humorous": "Tone: Humorous, witty, uses lighthearted anecdotes and engaging pacing like a storyteller. Keep it entertaining!",
+      "inspirational": "Tone: Inspirational, energetic, passionate. Uses strong verbs and forward-looking optimism.",
+      "academic": "Tone: Academic, precise, highly formal, and rigorous. Uses domain-specific vocabulary.",
+      "friendly": "Tone: Friendly, warm, approachable, conversational. Makes the listener feel comfortable."
+    };
+    const toneContext = `★ CRITICAL TONE OVERRIDE: ${toneMap[params.tone] || toneMap['standard']} ★`;
+
     // Goal Specific Context (Narrative Structure)
     const goalMap = {
       "general": "Structure: Standard informational. Clear hierarchy of points.",
@@ -126,7 +136,11 @@ export const AI = {
     if (SlideAgentState.generationMode === 'direct') {
       // --- STRICT CONVERTER MODE (SAFE TITLE LOGIC) ---
       systemPrompt = `
-You are a "Strict YAML Converter".
+You are a "Strict YAML Converter" with a specific persona.
+${personaContext}
+${stageContext}
+${toneContext}
+
 The user will provide a presentation outline.
 
 **CRITICAL RULES (MUST FOLLOW):**
@@ -156,26 +170,48 @@ The user will provide a presentation outline.
     -   Generate a \`visual_description\` starting with the style keywords provided below.
     -   Style: ${params.style} (${visualKeywords}).
 
+5.  **Script and Rebuttal Generation (TONE AWARE - NON NEGOTIABLE)**:
+    -   When generating \`script\`, \`rebuttal\`, \`challenge\` and \`persuasion\` fields, you must STRICTLY adopt the requested Tone (${params.tone}).
+    -   Current Tone Rule: ${toneContext}
+    -   Make sure these fields sound like spoken words matching this exact style. Do not use generic AI speech. Violating this tone is a failure.
+
+6.  **Language Policy (CRITICAL)**:
+    -   ALL generated text MUST be in Traditional Chinese (繁體中文). Do not output English.
+
 **Output Format (STRICT JSON SCHEMA):**
 You must strictly follow this structure. 
-⚠️ **CRITICAL: Every "content_page" MUST have a "title" field in the "content" block.**
-🛑 **CRITICAL: DO NOT under any circumstances generate a "deep_reflection" slide.** Only generate "content_page" slides exactly matching the input text blocks.
-
 {
   "presentation_data": {
-    "suggested_filename": "GENERATE_A_FILENAME_HERE_MAX_10_CHARS",
+    "suggested_filename": "擷取內容提到的關鍵字作為檔名_10字以內繁體中文",
     "global_design": {
       "style_name": "${params.style}",
       "visual_keywords": "${visualKeywords}",
-      "total_pages": "DYNAMIC"
+      "target_audience": "從內容判斷(例如：一般大眾、專業人士、學生等)",
+      "learning_stage": "從內容判斷",
+      "total_pages": {extracted_slide_count},
+      "typography": {
+        "title_font": "Font Name",
+        "body_font": "Font Name",
+        "title_size": "48pt",
+        "body_size": "18pt"
+      }
     },
     "slides": [
       {
-        "type": "content_page",
-        "layout_style": "Title Top-Left",
-        "visual_description": "...",
+        "type": "cover",
+        "layout_style": "Title Centered",
+        "visual_description": "Specific visual description...",
         "content": {
-          "title": "🔴 EXTRACTED TITLE GOES HERE (REQUIRED)", 
+          "title": "Main Title",
+          "subtitle": "Subtitle or Unit Name"
+        }
+      },
+      {
+        "type": "content_page",
+        "layout_style": "Split Layout (Left Image / Right Text)",
+        "visual_description": "Only describe the Subject Matter (characters, objects, actions). DO NOT include style keywords.",
+        "content": {
+          "title": "Slide Title",
           "key_points": [
             "Bullet point 1",
             "Bullet point 2"
@@ -192,6 +228,7 @@ You must strictly follow this structure.
 3.  **VERIFICATION**: Before outputting JSON, check: Does every content slide have a \`title\` field? If not, fix it.
 4.  **MULTI-MEDIA FOCUS**: You have been provided with multiple files. You MUST scan and acknowledge ALL files provided (text, PDF, AND Images). Do NOT ignore images if a PDF is present, and vice versa. Integrate information from ALL sources.
 **IGNORE UI SETTINGS**: Ignore total_pages parameter. Use exact number of slides from input. Do NOT add any extra slides.
+🛑 CRITICAL: DO NOT under any circumstances generate a "deep_reflection" slide. Only generate "content_page" slides exactly matching the input text blocks.
 
 `;
     } else {
@@ -205,7 +242,38 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
 - **Goal Structure**: ${goalContext}
 - **Style**: ${visualKeywords}
 - **Stage Level**: ${stageContext}
+- **Tone**: ${toneContext}
 - **Total Pages**: ${params.pages}
+
+**Directives:**
+1. **Writing Style & Tone (CRITICAL & NON-NEGOTIABLE)**:
+    -   You MUST strictly adopt the requested Tone (${params.tone}).
+    -   Current Tone Rule: ${toneContext}
+    -   Every single sentence in \`script\`, \`key_points\`, and \`deep_reflection\` MUST sound like spoken words matching this exact style. Do not use generic AI corporate speak. Violating this tone is a failure.
+    -   **ALL generated text MUST be in Traditional Chinese (繁體中文). Do not output English.**
+2. **Filename**: Create a unique, descriptive filename (under 10 Traditional Chinese characters) representing the specific topic (e.g. "光合作用_國中生物"). Do not include extension.
+3. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}
+4. **Content Depth**: 
+   - **Adhere strictly to the Stage Level description above.**
+   - "key_points" should be detailed and substantial (avoid short phrases).
+   - "visual_description" should be vivid and suitable for AI image generation.
+5. **Structure**: Slide 1 is 'cover', ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "Last is 'deep_reflection', " : ""}Middle are 'content_page'${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "" : " (or all remaining are 'content_page')"}.
+6. **Layout Strategy (Structured Variety)**:
+    -   **Rule A: The Anchor (Fixed Title)**
+        -   For ALL Content Pages, the Title MUST be aligned **Top-Left**.
+        -   (Cover Page remains "Title Centered").
+    
+    -   **Rule B: The Body (Dynamic Content)**
+        -   Choose the layout based on the content type, but keep the title fixed:
+        -   **Concept 1 (Standard)**: "Title Top-Left + Text Left / Image Right" (For general explanation).
+        -   **Concept 2 (Inverted)**: "Title Top-Left + Image Left / Text Right" (To reduce visual fatigue).
+        -   **Concept 3 (Comparison)**: "Title Top-Left + 2-Column Grid" (For comparing two items).
+        -   **Concept 4 (List)**: "Title Top-Left + 3-Column Icons" (For lists with 3+ items).
+    
+    -   **Rule C: Forbidden**
+        -   DO NOT use layouts that center the title on content pages.
+        -   DO NOT use "Auto Detected" (it is too random).
+        -   ALWAYS explicitly name the layout style (e.g., "Split Right", "3-Col Grid").
 
 **Strict Output Format (JSON ONLY):**
 {
@@ -216,7 +284,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
       "visual_keywords": "${visualKeywords}",
       "target_audience": "${params.identity}",
       "learning_stage": "${params.stage}",
-      "learning_stage": "${params.stage}",
+      "tone": "${params.tone}",
       "total_pages": ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages + 1 : params.pages},
       "typography": {
         "title_font": "Font Name",
@@ -260,31 +328,6 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
     ]
   }
 }
-
-**Directives:**
-1. **Filename**: Create a unique, descriptive filename (under 10 Traditional Chinese characters) representing the specific topic (e.g. "光合作用_國中生物"). Do not include extension.
-2. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}
-3. **Content Depth**: 
-   - **Adhere strictly to the Stage Level description above.**
-   - "key_points" should be detailed and substantial (avoid short phrases).
-   - "visual_description" should be vivid and suitable for AI image generation.
-4. **Structure**: Slide 1 is 'cover', ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "Last is 'deep_reflection', " : ""}Middle are 'content_page'${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "" : " (or all remaining are 'content_page')"}.
-5. **Layout Strategy (Structured Variety)**:
-    -   **Rule A: The Anchor (Fixed Title)**
-        -   For ALL Content Pages, the Title MUST be aligned **Top-Left**.
-        -   (Cover Page remains "Title Centered").
-    
-    -   **Rule B: The Body (Dynamic Content)**
-        -   Choose the layout based on the content type, but keep the title fixed:
-        -   **Concept 1 (Standard)**: "Title Top-Left + Text Left / Image Right" (For general explanation).
-        -   **Concept 2 (Inverted)**: "Title Top-Left + Image Left / Text Right" (To reduce visual fatigue).
-        -   **Concept 3 (Comparison)**: "Title Top-Left + 2-Column Grid" (For comparing two items).
-        -   **Concept 4 (List)**: "Title Top-Left + 3-Column Icons" (For lists with 3+ items).
-    
-    -   **Rule C: Forbidden**
-        -   DO NOT use layouts that center the title on content pages.
-        -   DO NOT use "Auto Detected" (it is too random).
-        -   ALWAYS explicitly name the layout style (e.g., "Split Right", "3-Col Grid").
 `;
     } // End of ELSE block
 
@@ -514,7 +557,7 @@ ${JSON.stringify(jsonData, null, 2)}
         });
 
         html += `</ul></div>
-                          ${slide.content.script ? `<div class="mt-4 p-3 bg-slate-100 rounded-lg text-xs text-slate-500 font-mono">🗣️ Script: ${slide.content.script}</div>` : ''}
+                          ${slide.content.script ? `<div class="mt-4"><label class="block text-xs font-semibold text-slate-500 mb-1">🗣️ 講者備忘 (Script)</label><div class="p-3 bg-slate-100 rounded-lg text-xs text-slate-600 font-mono outline-none focus:bg-white" contenteditable="true" data-field="script">${slide.content.script}</div></div>` : ''}
                           </div>`;
       }
 

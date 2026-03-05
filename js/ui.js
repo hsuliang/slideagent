@@ -24,6 +24,7 @@ export const UI = {
             pages: document.getElementById('pages'),
             style: document.getElementById('style'),
             goal: document.getElementById('goal'),
+            tone: document.getElementById('tone'), // Added by instruction
             customStyleContainer: document.getElementById('custom-style-container'),
             customStyleInput: document.getElementById('custom-style-input'),
             saveCustomStyleBtn: document.getElementById('save-custom-style-btn'),
@@ -56,6 +57,8 @@ export const UI = {
             copyYamlBtn: document.getElementById('copy-yaml'),
             dlYamlBtn: document.getElementById('dl-yaml'),
             dlMarkdownBtn: document.getElementById('dl-markdown'),
+            podcastDownloadBtn: document.getElementById('download-podcast-txt-btn'), // Added for Transcript
+            podcastCopyBtn: document.getElementById('podcast-copy-prompt-btn'), // Added by instruction
 
             // Estimator Dashboard
             statsDashboard: document.getElementById('stats-dashboard'),
@@ -398,9 +401,9 @@ export const UI = {
         Data.syncToYaml();
     },
 
-    copyToClipboard(text) {
+    copyToClipboard(text, successMsg = '已複製到剪貼簿') {
         navigator.clipboard.writeText(text)
-            .then(() => this.showToast('已複製到剪貼簿', 'success'))
+            .then(() => this.showToast(successMsg, 'success'))
             .catch(() => this.showToast('複製失敗', 'error'));
     },
 
