@@ -453,6 +453,11 @@ export const Data = {
             return;
         }
 
+        if (SlideAgentState.generationMode === 'direct') {
+            UI.showToast("現有大綱模式較精簡，不支援廣播稿下載", "warning");
+            return;
+        }
+
         try {
             let scriptContent = "";
             let baseFilename = SlideAgentState.currentFilename ? SlideAgentState.currentFilename.split('.')[0] : "podcast_script";

@@ -146,6 +146,11 @@ const App = {
 
         if (els.podcastCopyBtn) {
             els.podcastCopyBtn.addEventListener('click', () => {
+                if (SlideAgentState.generationMode === 'direct') {
+                    UI.showToast("現有大綱模式較精簡，不支援語音對談指令", "warning");
+                    return;
+                }
+
                 const settings = {
                     identity: UI.elements.identity ? UI.elements.identity.value : 'teacher',
                     tone: UI.elements.tone ? UI.elements.tone.value : 'standard'
