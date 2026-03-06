@@ -115,11 +115,82 @@ const App = {
         if (els.confirmOkBtn) els.confirmOkBtn.addEventListener('click', () => UI.executeClear());
         if (els.confirmCancelBtn) els.confirmCancelBtn.addEventListener('click', () => UI.closeConfirmModal());
 
+        // Magic Wand Actions
+        if (els.magicWandCancelBtn) els.magicWandCancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            UI.closeMagicWandModal();
+        });
+        if (els.magicWandSubmitBtn) els.magicWandSubmitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            AI.regenerateSingleSlide();
+        });
+
         // Output Actions
         if (els.outputOutline) {
             els.outputOutline.addEventListener('input', () => {
                 Data.syncToYaml();
                 Data.saveLocalHistory();
+            });
+
+            // Handle Up/Down Slide Reordering Buttons
+            els.outputOutline.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+
+                const action = btn.getAttribute('data-action');
+                if (action !== 'up' && action !== 'down') return;
+
+                const currentSlide = btn.closest('.slide-block');
+                if (!currentSlide) return;
+
+                if (action === 'up') {
+                    const prevSlide = currentSlide.previousElementSibling;
+                    if (prevSlide && prevSlide.classList.contains('slide-block')) {
+                        // Prevent moving above the Cover slide
+                        if (prevSlide.getAttribute('data-type') === 'cover') {
+                            UI.showToast('封面頁必須固定在第一頁', 'warning');
+                            return;
+                        }
+                        currentSlide.parentNode.insertBefore(currentSlide, prevSlide);
+                        UI.updateSlideNumbers();
+                        Data.syncToYaml();
+                    }
+                } else if (action === 'down') {
+                    const nextSlide = currentSlide.nextElementSibling;
+                    if (nextSlide && nextSlide.classList.contains('slide-block')) {
+                        // Unlikely to move a cover down since it has no buttons, but just in case
+                        if (currentSlide.getAttribute('data-type') === 'cover') {
+                            UI.showToast('封面頁不能移動', 'warning');
+                            return;
+                        }
+                        currentSlide.parentNode.insertBefore(nextSlide, currentSlide);
+                        UI.updateSlideNumbers();
+                        Data.syncToYaml();
+                    }
+                }
+            });
+
+            // Handle Magic Wand Click
+            els.outputOutline.addEventListener('click', (e) => {
+                const btn = e.target.closest('.magic-wand-btn');
+                if (!btn) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const slideBlock = btn.closest('.slide-block');
+                if (!slideBlock) return;
+
+                // Get the current slide index based on its position
+                const slides = Array.from(els.outputOutline.querySelectorAll('.slide-block'));
+                const slideIndex = slides.indexOf(slideBlock);
+
+                // Identify slide title for the modal
+                const titleEl = slideBlock.querySelector('[data-field="title"]');
+                const slideTitle = titleEl ? titleEl.textContent : `Slide ${slideIndex + 1}`;
+
+                // Open the modal
+                UI.openMagicWandModal(slideIndex, slideTitle);
             });
         }
 
@@ -173,18 +244,8 @@ const App = {
                 const myPersona = personas[settings.identity] || "專業分享者";
                 const myTone = tones[settings.tone] || "標準客觀";
 
-                // --- NEW WORKFLOW (V11): Ask NotebookLM to read the CLEAN text file ---
                 const prompt = `
-請針對上傳的專案報告，生成一段 Audio Overview 雙人對談：
-
-1. 角色與語氣設定：
-請讓兩位主持人化身為「${myPersona}」。語氣必須是「${myTone}」，彼此熱情且自然地互動，像是在錄製一場精彩的專業廣播。
-
-2. 對話核心：
-請聚焦於文檔中的「深入解說內容」與「重點摘要」來展開討論，探討內容提到的關鍵挑戰與解決方案。建議依照文稿順序討論說明。
-
-3. 深度反思：
-除了介紹表面資訊，請深入探討這些內容背後的「核心價值」與「對未來的啟發」。請用最口語、放鬆的 Podcast 閒聊節奏串接資訊，自由延伸。
+請讓兩位主持人化身為「${myPersona}」。語氣必須是「${myTone}」，彼此自然地聊天互動，並請依照上傳文稿的順序進行討論與說明。
             `.trim();
 
                 UI.copyToClipboard(prompt, '✅ 語音對談指令已複製！請至 NotebookLM 指令框貼上');

@@ -40,6 +40,12 @@ export const UI = {
             // Smart Input Area
             dropZone: document.getElementById('drop-zone'),
             fileUpload: document.getElementById('file-upload'),
+            // Magic Wand Elements
+            magicWandModal: document.getElementById('magic-wand-modal'),
+            magicWandSlideTitle: document.getElementById('magic-wand-slide-title'),
+            magicWandPrompt: document.getElementById('magic-wand-prompt'),
+            magicWandSubmitBtn: document.getElementById('magic-wand-submit-btn'),
+            magicWandCancelBtn: document.getElementById('magic-wand-cancel-btn'),
             mainInput: document.getElementById('main-input'),
             previewGallery: document.getElementById('preview-gallery'),
             inputPlaceholder: document.getElementById('input-placeholder'),
@@ -216,6 +222,62 @@ export const UI = {
         }
     },
 
+    // Magic Wand Modal Methods
+    openMagicWandModal(slideIndex, slideTitle) {
+        const els = this.elements;
+        if (!els.magicWandModal) return;
+
+        // Store index so AI knows which one to replace
+        SlideAgentState.magicWandTargetIndex = slideIndex;
+
+        if (els.magicWandSlideTitle) els.magicWandSlideTitle.textContent = `第 ${slideIndex + 1} 頁：${slideTitle}`;
+        if (els.magicWandPrompt) els.magicWandPrompt.value = '';
+
+        // Reset button state
+        this.setMagicWandLoading(false);
+
+        // Show modal
+        els.magicWandModal.classList.remove('hidden');
+        void els.magicWandModal.offsetWidth;
+        els.magicWandModal.classList.remove('opacity-0');
+        els.magicWandModal.querySelector('div').classList.remove('scale-95');
+
+        if (els.magicWandPrompt) els.magicWandPrompt.focus();
+    },
+
+    closeMagicWandModal() {
+        const els = this.elements;
+        if (els.magicWandModal) {
+            els.magicWandModal.classList.add('opacity-0');
+            els.magicWandModal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => els.magicWandModal.classList.add('hidden'), 300);
+        }
+    },
+
+    setMagicWandLoading(isLoading) {
+        const els = this.elements;
+        if (!els.magicWandSubmitBtn || !els.magicWandCancelBtn || !els.magicWandPrompt) return;
+
+        const btnText = els.magicWandSubmitBtn.querySelector('.btn-text');
+        const btnLoader = els.magicWandSubmitBtn.querySelector('.btn-loader');
+
+        if (isLoading) {
+            if (btnText) btnText.classList.add('hidden');
+            if (btnLoader) btnLoader.classList.remove('hidden');
+            els.magicWandSubmitBtn.disabled = true;
+            els.magicWandSubmitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            els.magicWandCancelBtn.disabled = true;
+            els.magicWandPrompt.disabled = true;
+        } else {
+            if (btnText) btnText.classList.remove('hidden');
+            if (btnLoader) btnLoader.classList.add('hidden');
+            els.magicWandSubmitBtn.disabled = false;
+            els.magicWandSubmitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            els.magicWandCancelBtn.disabled = false;
+            els.magicWandPrompt.disabled = false;
+        }
+    },
+
     updateInputState() {
         const els = this.elements;
         const hasText = els.mainInput.value.trim().length > 0;
@@ -313,14 +375,21 @@ export const UI = {
         const icons = {
             success: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
             error: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
-            info: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+            info: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+            warning: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
         };
 
         toast.className = `toast toast-${type}`;
+
+        let title = '提示';
+        if (type === 'error') title = '發生錯誤';
+        if (type === 'success') title = '成功';
+        if (type === 'warning') title = '注意';
+
         toast.innerHTML = `
             ${icons[type] || icons.info}
             <div>
-                <h4 class="font-bold text-sm">${type === 'error' ? '發生錯誤' : (type === 'success' ? '成功' : '提示')}</h4>
+                <h4 class="font-bold text-sm">${title}</h4>
                 <p class="text-sm opacity-90">${message}</p>
             </div>
         `;
@@ -396,9 +465,75 @@ export const UI = {
             this.elements.resultsArea.classList.remove('hidden');
             this.elements.resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        if (this.elements.outputOutline) this.elements.outputOutline.innerHTML = content.html;
-        // Immediate Sync to update YAML preview from the generated HTML
-        Data.syncToYaml();
+
+        if (this.elements.outputOutline) {
+            // Progressive Rendering Logic
+            const container = this.elements.outputOutline;
+            container.innerHTML = ''; // Clear previous
+
+            // Parse HTML string into DOM elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content.html;
+            const blocks = Array.from(tempDiv.children);
+
+            if (blocks.length === 0) {
+                Data.syncToYaml();
+                return;
+            }
+
+            let i = 0;
+            // Disable generate button while streaming
+            const genBtn = this.elements.generateBtn;
+            if (genBtn) {
+                genBtn.disabled = true;
+                genBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                genBtn.innerHTML = '<span class="animate-pulse">正在打字輸出中...</span>';
+            }
+
+            const streamInterval = setInterval(() => {
+                if (i < blocks.length) {
+                    const block = blocks[i];
+                    block.classList.add('streaming-char'); // Apply CSS animation
+                    container.appendChild(block);
+
+                    // Auto scroll down smoothly as content grows
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
+
+                    // Sync YAML progressively
+                    Data.syncToYaml();
+
+                    i++;
+                } else {
+                    clearInterval(streamInterval);
+
+                    // Re-enable button
+                    if (genBtn) {
+                        genBtn.disabled = false;
+                        genBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        genBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 產出簡報結構';
+                    }
+                }
+            }, 400); // 400ms delay between each slide block appearing
+        }
+    },
+
+    updateSlideNumbers() {
+        const container = this.elements.outputOutline;
+        if (!container) return;
+
+        const blocks = container.querySelectorAll('.slide-block');
+        let counter = 1;
+        blocks.forEach(block => {
+            const numberEl = block.querySelector('.slide-number');
+            if (numberEl) {
+                // Replace the old number with the new one, keeping the type label
+                numberEl.innerHTML = numberEl.innerHTML.replace(/Slide \d+ -/, `Slide ${counter} -`);
+            }
+            counter++;
+        });
     },
 
     copyToClipboard(text, successMsg = '已複製到剪貼簿') {
@@ -490,13 +625,13 @@ export const UI = {
                 }
             }
             if (els.inputPlaceholder) els.inputPlaceholder.innerHTML = `
-                <div id="upload-trigger-btn" class="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all">
-                    <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                </div>
-                <p class="text-sm text-slate-500 font-medium text-center">${placeholderText}</p>
-            `;
+                            < div id = "upload-trigger-btn" class= "p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all" >
+                            <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                </div >
+    <p class="text-sm text-slate-500 font-medium text-center">${placeholderText}</p>
+`;
 
             // Re-bind is handled by delegation in init()
         };

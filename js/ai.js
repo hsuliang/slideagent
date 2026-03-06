@@ -84,6 +84,129 @@ export const AI = {
     }
   },
 
+  async regenerateSingleSlide() {
+    const targetIndex = SlideAgentState.magicWandTargetIndex;
+    if (targetIndex === null || targetIndex === undefined) return;
+
+    const uiInputEl = document.getElementById('magic-wand-prompt');
+    const userPrompt = uiInputEl ? uiInputEl.value.trim() : "";
+    if (!userPrompt) {
+      UI.showToast("請輸入修改指示", "warning");
+      return;
+    }
+
+    UI.setMagicWandLoading(true);
+
+    try {
+      // Find the specific slide element to extract current content
+      const slideBlocks = document.querySelectorAll('.slide-block');
+      const targetBlock = slideBlocks[targetIndex];
+      if (!targetBlock) throw new Error("找不到目標投影片");
+
+      // Context: We give the AI the *whole* YAML so it knows what the rest of the presentation is about,
+      // but we ask it to only return the JSON for the *target* slide.
+      const fullYamlContext = document.getElementById('output-yaml').textContent;
+      const currentSlideType = targetBlock.getAttribute('data-type') || 'content_page';
+
+      // Grab current text content of the slide to help the AI understand what it's replacing
+      let currentSlideText = targetBlock.innerText.replace(/往上移|往下移|單頁魔法修改/g, '').trim();
+
+      const systemPrompt = `
+You are an expert presentation editor. 
+Your task is to REWRITE EXACTLY ONE SLIDE based on the user's instructions and the context of the entire presentation.
+
+CONTEXT OF ENTIRE PRESENTATION:
+\`\`\`yaml
+${fullYamlContext}
+\`\`\`
+
+CURRENT SLIDE CONTENT (Index ${targetIndex}):
+"""
+${currentSlideText}
+"""
+
+USER REVISION INSTRUCTIONS:
+"${userPrompt}"
+
+RULES:
+1. ONLY return the JSON object for the REVISED slide.
+2. DO NOT return an array of slides. DO NOT return the "presentation_data" wrapper. 
+3. MUST keep the slide "type" as "${currentSlideType}".
+4. All text MUST be in Traditional Chinese (繁體中文).
+5. Must return valid, strictly formatted JSON matching this exact structure:
+{
+  "type": "${currentSlideType}",
+  ${currentSlideType === 'cover' ?
+          `"layout_style": "Title Centered",
+  "visual_description": "...",
+  "content": { "title": "...", "subtitle": "..." }` :
+          `"layout_style": "...",
+  "visual_description": "...",
+  "content": { "title": "...", "key_points": ["..."], "script": "..." }`}
+}
+`;
+
+      const apiKey = SlideAgentState.apiKeys[0];
+      const model = 'gemini-2.5-flash';
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ parts: [{ text: "Please generate the revised slide JSON." }] }],
+          generationConfig: {
+            response_mime_type: "application/json",
+            temperature: 0.7
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.candidates && data.candidates.length > 0) {
+        const rawText = data.candidates[0].content.parts[0].text;
+        const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
+        const revisedSlideJson = JSON.parse(jsonStr);
+
+        // Generate HTML for just this one slide using the existing robust converter
+        // We trick it by wrapping it in the expected root structure
+        const tempWrapper = { presentation_data: { slides: [revisedSlideJson] } };
+        const resultHtmlObj = this.convertDataToArtifacts(tempWrapper);
+
+        let htmlStr = resultHtmlObj.html;
+        // Fix the index numbers that convertDataToArtifacts hardcodes
+        htmlStr = htmlStr.replace(/Slide 1 -/g, `Slide ${targetIndex + 1} -`);
+
+        // Replace the block in the DOM
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlStr;
+        const newFinalNode = tempDiv.firstElementChild;
+
+        if (newFinalNode) {
+          targetBlock.replaceWith(newFinalNode);
+          // Trigger full sync so the YAML viewer updates
+          Data.syncToYaml();
+          UI.showToast('✨ 該頁面已成功施展魔法', 'success');
+          UI.closeMagicWandModal();
+        } else {
+          throw new Error("HTML generation failed for revised slide");
+        }
+      } else {
+        throw new Error("AI did not return any candidates.");
+      }
+
+    } catch (err) {
+      console.error("Magic Wand Error:", err);
+      UI.showToast(`魔法失敗: ${err.message}`, "error");
+    } finally {
+      UI.setMagicWandLoading(false);
+    }
+  },
+
   async generateWithGemini(params, fileData) {
     // Retrieve Visual Keywords
     let visualKeywords = "Professional, clean, educational standard style.";
@@ -390,7 +513,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
           });
 
           if (!response.ok) {
-            const errData = await response.json();
+            const errData = await response.json().catch(() => ({}));
             const errorMsg = errData.error?.message || response.statusText;
             if (response.status === 400 && (errorMsg.includes('API key') || errorMsg.includes('key not valid'))) {
               throw new Error(`INVALID_KEY: ${errorMsg}`);
@@ -401,10 +524,14 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
             throw new Error(`MODEL_ERROR: ${errorMsg}`);
           }
 
-          const data = await response.json();
-          if (!data.candidates || data.candidates.length === 0) throw new Error('No candidates returned');
+          const responseData = await response.json();
+          let rawText = '';
+          if (responseData.candidates && responseData.candidates.length > 0) {
+            rawText = responseData.candidates[0].content.parts[0].text;
+          } else {
+            throw new Error("AI API failed to return any valid candidates.");
+          }
 
-          const rawText = data.candidates[0].content.parts[0].text;
           const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
           let jsonData = JSON.parse(jsonStr);
 
@@ -418,7 +545,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
                   if (slide.content.key_points && slide.content.key_points.length > 0) {
                     slide.content.title = slide.content.key_points.shift();
                   } else {
-                    slide.content.title = `Slide ${idx + 1}`;
+                    slide.content.title = `Slide ${idx + 1} `;
                   }
                 }
               }
@@ -431,16 +558,16 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
             console.log("Starting Deep Optimization Pass...");
 
             const optimizationPrompt = `
-You are a master presentation coach. Review the following JSON outline for a presentation.
+You are a master presentation coach.Review the following JSON outline for a presentation.
 Your Task:
-1. Enhance clarity, impact, and logical flow of the 'title' and 'key_points'.
+                      1. Enhance clarity, impact, and logical flow of the 'title' and 'key_points'.
 2. Make the language more engaging and professional according to the Speaker Persona: ${personaContext} and Target Stage: ${stageContext}.
 3. Fix any structural inconsistencies.
-4. YOU MUST RETURN THE EXACT SAME JSON STRUCTURE. DO NOT ADD OR REMOVE SLIDES. DO NOT CHANGE THE KEYS. Just optimize the text inside the structure.
+4. YOU MUST RETURN THE EXACT SAME JSON STRUCTURE.DO NOT ADD OR REMOVE SLIDES.DO NOT CHANGE THE KEYS.Just optimize the text inside the structure.
 
 JSON Outline to optimize:
-${JSON.stringify(jsonData, null, 2)}
-              `;
+    ${JSON.stringify(jsonData, null, 2)}
+`;
 
             const optResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
               method: 'POST',
@@ -521,11 +648,28 @@ ${JSON.stringify(jsonData, null, 2)}
         deep_reflection: '深度省思'
       }[slide.type] || slide.type;
 
-      html += `<div class="slide-block mb-12 p-6 bg-slate-50 rounded-xl border border-slate-200 hover:shadow-md transition-shadow" data-type="${slide.type}">`;
+      html += `<div class="slide-block mb-12 p-6 bg-slate-50 rounded-xl border border-slate-200 hover:shadow-md transition-shadow relative" data-type="${slide.type}">`;
 
       // Header
       html += `<div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-2">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Slide ${index + 1} - ${typeLabel}</span>
+                        <div class="flex items-center gap-2">`;
+      // Only show move and regen buttons if it's not a cover
+      if (slide.type !== 'cover') {
+        html += `         <div class="flex flex-col gap-0.5 mr-2">
+                               <button class="move-up-btn text-slate-300 hover:text-brand-600 p-0.5 rounded transition-colors" title="往上移" data-action="up">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                               </button>
+                               <button class="move-down-btn text-slate-300 hover:text-brand-600 p-0.5 rounded transition-colors" title="往下移" data-action="down">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                               </button>
+                           </div>
+                           <button class="magic-wand-btn text-brand-400 hover:text-brand-600 hover:bg-brand-50 p-1.5 rounded-lg transition-colors mr-2 flex items-center gap-1 border border-transparent hover:border-brand-200" title="單頁魔法修改">
+                               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                           </button>`;
+      }
+
+      html += `            <span class="slide-number text-xs font-bold text-slate-400 uppercase tracking-wider">Slide ${index + 1} - ${typeLabel}</span>
+                        </div>
                         <span class="font-mono text-xs text-brand-600 bg-brand-50 px-2 py-1 rounded">${slide.layout_style || 'Standard'}</span>
                      </div>`;
 

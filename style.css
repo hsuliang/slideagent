@@ -155,3 +155,17 @@ select {
     font-family: monospace;
     /* Ensures dots are monospaced */
 }
+
+/* Streaming Typewriter Effect */
+.streaming-char {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInChar 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeInChar {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
