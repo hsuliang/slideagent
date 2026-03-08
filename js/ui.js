@@ -625,13 +625,13 @@ export const UI = {
                 }
             }
             if (els.inputPlaceholder) els.inputPlaceholder.innerHTML = `
-                            < div id = "upload-trigger-btn" class= "p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all" >
-                            <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                </div >
-    <p class="text-sm text-slate-500 font-medium text-center">${placeholderText}</p>
-`;
+                <div id="upload-trigger-btn" class="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-sm mb-3 cursor-pointer pointer-events-auto hover:bg-white hover:scale-105 transition-all">
+                    <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </div>
+                <p class="text-sm text-slate-500 font-medium text-center">${placeholderText}</p>
+            `;
 
             // Re-bind is handled by delegation in init()
         };
