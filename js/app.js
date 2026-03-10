@@ -102,14 +102,31 @@ const App = {
 
         // Core Actions
         if (els.generateBtn) els.generateBtn.addEventListener('click', () => AI.startGeneration());
+        if (els.copyPromptBtn) {
+            els.copyPromptBtn.addEventListener('click', () => {
+                const promptText = "請依據來源內容生成簡報";
+                navigator.clipboard.writeText(promptText).then(() => {
+                    UI.showToast("已複製提示詞", "success");
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    UI.showToast("複製失敗，請手動複製", "error");
+                });
+            });
+        }
         if (els.cancelGenBtn) els.cancelGenBtn.addEventListener('click', () => AI.stopGeneration());
 
-        // Clear Button
+        // Clear Button & Actions
         if (els.clearBtn) {
             els.clearBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 UI.openConfirmModal();
+            });
+        }
+        if (els.addFileActionBtn) {
+            els.addFileActionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (els.fileUpload) els.fileUpload.click();
             });
         }
         if (els.confirmOkBtn) els.confirmOkBtn.addEventListener('click', () => UI.executeClear());

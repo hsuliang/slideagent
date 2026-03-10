@@ -6,10 +6,10 @@ import { UI } from './ui.js';
 import { Data } from './data.js';
 
 export const FileHandler = {
-    handleFiles(fileList) {
+    async handleFiles(fileList) {
         const files = Array.from(fileList);
         const validFiles = files.filter(f => {
-            const isValidType = f.type.match('image.*|text.*|application/pdf|application/json') || f.name.toLowerCase().endsWith('.md');
+            const isValidType = f.type.match('image.*|text.*|application/pdf|application/json') || f.name.toLowerCase().endsWith('.md') || f.name.toLowerCase().endsWith('.csv');
             if (!isValidType) {
                 UI.showToast(`檔案格式不支援: ${f.name}`, 'error');
                 return false;
@@ -22,10 +22,53 @@ export const FileHandler = {
         });
 
         if (validFiles.length > 0) {
-            SlideAgentState.uploadedFiles = [...SlideAgentState.uploadedFiles, ...validFiles];
+            UI.setLoading(true, "正在讀取檔案...", "請稍候");
+            
+            for (const f of validFiles) {
+                const isText = !!f.type.match('text.*|application/json') || f.name.toLowerCase().endsWith('.md') || f.name.toLowerCase().endsWith('.csv');
+                
+                if (isText) {
+                    try {
+                        const content = await this.readTextFile(f);
+                        if (UI.elements.mainInput) {
+                            const separator = UI.elements.mainInput.value ? '\n\n' : '';
+                            UI.elements.mainInput.value += `${separator}--- 檔案：${f.name} ---\n${content}`;
+                            // If updateInputState is available, it will clear placeholder
+                            if (UI.updateInputState) UI.updateInputState();
+                            setTimeout(() => {
+                                UI.elements.mainInput.scrollTop = UI.elements.mainInput.scrollHeight;
+                            }, 10);
+                        }
+                    } catch (e) {
+                        UI.showToast(`文字檔案讀取失敗: ${f.name}`, 'error');
+                    }
+                } else {
+                    // Images and PDFs - store in state for gallery and API
+                    SlideAgentState.uploadedFiles = [...SlideAgentState.uploadedFiles, f];
+                    if (UI.elements.mainInput) {
+                        const separator = UI.elements.mainInput.value ? '\n\n' : '';
+                        UI.elements.mainInput.value += `${separator}[系統已載入非純文字預覽之檔案：${f.name}]`;
+                        if (UI.updateInputState) UI.updateInputState();
+                        setTimeout(() => {
+                            UI.elements.mainInput.scrollTop = UI.elements.mainInput.scrollHeight;
+                        }, 10);
+                    }
+                }
+            }
+            
             UI.renderGallery();
             Data.saveLocalHistory();
+            UI.setLoading(false);
         }
+    },
+
+    readTextFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
     },
 
     removeFile(fileToRemove) {

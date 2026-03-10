@@ -52,6 +52,7 @@ export const UI = {
 
             // Actions
             clearBtn: document.getElementById('clear-btn'),
+            addFileActionBtn: document.getElementById('add-file-action-btn'),
             generateBtn: document.getElementById('generate-btn'),
             loader: document.getElementById('loader'),
             cancelGenBtn: document.getElementById('cancel-gen-btn'),
@@ -65,6 +66,7 @@ export const UI = {
             dlMarkdownBtn: document.getElementById('dl-markdown'),
             podcastDownloadBtn: document.getElementById('download-podcast-txt-btn'), // Added for Transcript
             podcastCopyBtn: document.getElementById('podcast-copy-prompt-btn'), // Added by instruction
+            copyPromptBtn: document.getElementById('copy-prompt-btn'), // Added for basic copy prompt
 
             // Estimator Dashboard
             statsDashboard: document.getElementById('stats-dashboard'),
@@ -293,6 +295,12 @@ export const UI = {
             els.previewGallery.classList.remove('hidden');
         } else {
             els.previewGallery.classList.add('hidden');
+        }
+
+        if (hasText && !hasFiles) {
+            if (els.addFileActionBtn) els.addFileActionBtn.classList.remove('hidden');
+        } else {
+            if (els.addFileActionBtn) els.addFileActionBtn.classList.add('hidden');
         }
 
         this.autoResizeInput();

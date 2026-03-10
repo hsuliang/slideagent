@@ -276,8 +276,26 @@
                                     <div class="space-y-2">
                                         <label for="pages" class="block text-sm font-semibold text-slate-700">簡報總頁數
                                         </label>
-                                        <input type="number" id="pages" value="8" min="5" max="60"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 shadow-sm px-4 text-slate-600 bg-white">
+                                        <select id="pages"
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            <option value="auto" selected>🤖 系統自定 (AI最佳化)</option>
+                                            <option value="5">5 頁</option>
+                                            <option value="6">6 頁</option>
+                                            <option value="7">7 頁</option>
+                                            <option value="8">8 頁</option>
+                                            <option value="9">9 頁</option>
+                                            <option value="10">10 頁</option>
+                                            <option value="11">11 頁</option>
+                                            <option value="12">12 頁</option>
+                                            <option value="13">13 頁</option>
+                                            <option value="14">14 頁</option>
+                                            <option value="15">15 頁</option>
+                                            <option value="20">20 頁</option>
+                                            <option value="30">30 頁</option>
+                                            <option value="40">40 頁</option>
+                                            <option value="50">50 頁</option>
+                                            <option value="60">60 頁</option>
+                                        </select>
                                     </div>
                                 </div>
                             </details>
@@ -500,8 +518,17 @@
                                     </span>
                                     內容輸入與素材上傳
                                 </h3>
-                                <span
-                                    class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">支援圖文與檔案混和輸入</span>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">支援圖文與檔案混和輸入</span>
+                                    <button id="clear-btn" type="button"
+                                        class="text-red-500 bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-600 text-sm font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm group" title="清空全部">
+                                        <svg class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        清空全部
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Mode Tabs -->
@@ -553,25 +580,28 @@
 
 
                         <!-- Actions -->
-                        <div class="pt-4 flex items-center justify-between gap-4">
-                            <button id="clear-btn" type="button"
-                                class="text-slate-400 hover:text-red-500 text-sm font-medium px-4 py-2 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                    </path>
+                        <div class="pt-4 flex items-stretch justify-between gap-3 h-16">
+                            <!-- Left Action (Continue Import) - Aligns with right button block height -->
+                            <button id="add-file-action-btn" type="button"
+                                class="hidden text-brand-600 border-2 border-brand-100 bg-brand-50 hover:border-brand-300 hover:bg-brand-100 text-base font-bold px-6 py-0 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm w-auto">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
-                                清空內容
+                                繼續匯入
                             </button>
-                            <button id="generate-btn"
-                                class="flex-1 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all flex items-center justify-center gap-2 group ring-4 ring-brand-500/20">
-                                <span>🚀 開始生成簡報內容</span>
-                                <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                </svg>
-                            </button>
+                            
+                            <!-- Right Action (Generate) -->
+                            <div class="flex-1 flex flex-col h-full">
+                                <button id="generate-btn"
+                                    class="w-full h-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all flex items-center justify-center gap-2 group ring-4 ring-brand-500/20">
+                                    <span>🚀 開始生成簡報內容</span>
+                                    <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -660,6 +690,14 @@
                             <p class="text-xs text-slate-500 leading-relaxed">
                                 於 NotebookLM 中，直接點擊 <strong>"簡報"</strong> 指令，再點擊「生成」。
                             </p>
+                            <div class="mt-3 w-full border-t border-slate-100 pt-3">
+                                <button id="copy-prompt-btn" type="button" class="w-full text-[11px] font-bold px-2 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white rounded transition-all flex items-center justify-center gap-1 shadow-sm hover:shadow">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                    📋 複製提示詞
+                                </button>
+                            </div>
                         </div>
 
                         <div
@@ -822,11 +860,16 @@
                             class="w-full h-32 rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 p-3 shadow-sm text-xs sm:text-sm text-slate-600 font-mono resize-none text-security-disc transition-all"
                             spellcheck="false"></textarea>
                     </div>
-                    <p class="text-xs text-slate-500">
+                    <p class="text-xs text-slate-500 mb-3">
                         支援多組 Key 輪替以提升穩定性。您的 Key 僅會儲存在瀏覽器本地端。
-                        <a href="https://aistudio.google.com/app/apikey" target="_blank"
-                            class="text-brand-600 hover:underline">免費申請 Key &rarr;</a>
                     </p>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                        class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg shadow-sm border border-indigo-200 transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.25l7.52-7.52A6 6 0 0115 7z"></path>
+                        </svg>
+                        🆓 免費申請 API Key
+                    </a>
                 </div>
 
                 <div class="pt-2">

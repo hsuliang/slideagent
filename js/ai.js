@@ -26,7 +26,7 @@ export const AI = {
       identity: identity.value,
       stage: stage.value,
       goal: UI.elements.goal ? UI.elements.goal.value : "general",
-      pages: parseInt(pages.value) || 8,
+      pages: pages.value === 'auto' ? 'auto' : (parseInt(pages.value) || 8),
       style: style.value,
       customStyle: UI.elements.customStyleInput ? UI.elements.customStyleInput.value.trim() : "",
       userInput: userInput,
@@ -253,6 +253,15 @@ RULES:
     };
     const goalContext = goalMap[params.goal] || goalMap['general'];
 
+    let pageDisciplineRule = "";
+    let totalPagesTemplate = "";
+    if (params.pages === 'auto') {
+      pageDisciplineRule = `3. **Page Discipline**: Determine the optimal, natural length and number of slides based on the density and structure of the provided content. Create as many 'content_page' slides as necessary to fully cover the topic without rushing or padding.${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? " THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end." : ""}`;
+      totalPagesTemplate = `"AI_Calculated_Number"`;
+    } else {
+      pageDisciplineRule = `3. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}`;
+      totalPagesTemplate = UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages + 1 : params.pages;
+    }
 
     let systemPrompt = '';
 
@@ -366,7 +375,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
 - **Style**: ${visualKeywords}
 - **Stage Level**: ${stageContext}
 - **Tone**: ${toneContext}
-- **Total Pages**: ${params.pages}
+- **Total Pages Target**: ${params.pages === 'auto' ? 'AI to determine optimal length' : params.pages}
 
 **Directives:**
 1. **Writing Style & Tone (CRITICAL & NON-NEGOTIABLE)**:
@@ -375,7 +384,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
     -   Every single sentence in \`script\`, \`key_points\`, and \`deep_reflection\` MUST sound like spoken words matching this exact style. Do not use generic AI corporate speak. Violating this tone is a failure.
     -   **ALL generated text MUST be in Traditional Chinese (繁體中文). Do not output English.**
 2. **Filename**: Create a unique, descriptive filename (under 10 Traditional Chinese characters) representing the specific topic (e.g. "光合作用_國中生物"). Do not include extension.
-3. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}
+${pageDisciplineRule}
 4. **Content Depth**: 
    - **Adhere strictly to the Stage Level description above.**
    - "key_points" should be detailed and substantial (avoid short phrases).
@@ -408,7 +417,7 @@ Action: Generate a "Construction Blueprint" JSON for a presentation.
       "target_audience": "${params.identity}",
       "learning_stage": "${params.stage}",
       "tone": "${params.tone}",
-      "total_pages": ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages + 1 : params.pages},
+      "total_pages": ${totalPagesTemplate},
       "typography": {
         "title_font": "Font Name",
         "body_font": "Font Name",
