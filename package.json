@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
-    "puppeteer": "^24.38.0",
     "sortablejs": "^1.15.7"
   },
   "name": "slideagent",
