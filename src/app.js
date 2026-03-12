@@ -8,7 +8,7 @@ import { AI } from './ai.js';
 import { FileHandler } from './files.js';
 import { SlideAgentState } from './config.js';
 
-const App = {
+export const App = {
     init() {
         console.log("Initializing SlideAgent v3.0 (Modular)...");
         Data.init();
@@ -572,11 +572,6 @@ const App = {
         }
     }
 };
-
-// Start App
-document.addEventListener('DOMContentLoaded', () => {
-    App.init();
-});
 
 // Security feature: Clear API keys when the user closes the tab
 window.addEventListener('beforeunload', () => {

@@ -410,6 +410,8 @@ export const Data = {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        
+        if (UI.showToast) UI.showToast("YAML 下載成功 (NBLM 專用)", "success");
     },
 
     // downloadSplitYaml has been officially removed. Full downloads only from now on.

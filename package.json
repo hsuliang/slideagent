@@ -1,5 +1,34 @@
 {
   "dependencies": {
-    "puppeteer": "^24.38.0"
+    "@tailwindcss/vite": "^4.2.1",
+    "puppeteer": "^24.38.0",
+    "sortablejs": "^1.15.7"
+  },
+  "name": "slideagent",
+  "version": "1.0.0",
+  "description": "這是一個專為老師與同學設計的簡報輔助工具，能夠根據輸入的參數與多模態素材，自動生成結構化的簡報大綱、數據格式 (YAML) 以及 NotebookLM 專用的提示詞。",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hsuliang/slideagent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/hsuliang/slideagent/issues"
+  },
+  "homepage": "https://github.com/hsuliang/slideagent#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "vite": "^7.3.1"
   }
 }
