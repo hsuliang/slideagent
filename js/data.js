@@ -45,6 +45,33 @@ export const Data = {
         }
     },
 
+    getFavoriteStyles() {
+        const stored = localStorage.getItem('slideAgent_favoriteStyles');
+        if (stored) {
+            try {
+                return JSON.parse(stored);
+            } catch (e) {
+                console.error("Failed to parse favorite styles");
+                return [];
+            }
+        }
+        return [];
+    },
+
+    saveFavoriteStyle(name, prompt) {
+        let styles = this.getFavoriteStyles();
+        const id = 'fav_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        styles.unshift({ id, name, prompt });
+        localStorage.setItem('slideAgent_favoriteStyles', JSON.stringify(styles));
+        return id;
+    },
+
+    deleteFavoriteStyle(id) {
+        let styles = this.getFavoriteStyles();
+        styles = styles.filter(s => s.id !== id);
+        localStorage.setItem('slideAgent_favoriteStyles', JSON.stringify(styles));
+    },
+
     clearApiKeys(showToast = false) {
         SlideAgentState.apiKeys = [];
         localStorage.removeItem('slideAgent_apiKeys');
@@ -85,6 +112,47 @@ export const Data = {
         return stored ? JSON.parse(stored) : null;
     },
 
+    saveGenerationHistory(outlineHtml, yamlText) {
+        let history = this.getGenerationHistory();
+        
+        // Extract a simple title from the HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = outlineHtml;
+        const h2 = temp.querySelector('h2');
+        const h3 = temp.querySelector('h3');
+        let title = '未命名簡報';
+        if (h2 && h2.textContent.trim()) {
+            title = h2.textContent.trim();
+        } else if (h3 && h3.textContent.trim()) {
+            title = h3.textContent.trim();
+        }
+        if (title.length > 20) title = title.substring(0, 20) + '...';
+
+        const newItem = {
+            id: Date.now(),
+            timeStr: new Date().toLocaleTimeString('zh-TW', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+            title: title,
+            outline: outlineHtml,
+            yaml: yamlText
+        };
+
+        history.unshift(newItem);
+        if (history.length > 5) {
+            history = history.slice(0, 5);
+        }
+        localStorage.setItem('slideAgent_generationHistory', JSON.stringify(history));
+        
+        // Let UI know history changed if we need to re-render
+        if (window.UI && window.UI.renderHistoryMenu) {
+            window.UI.renderHistoryMenu();
+        }
+    },
+
+    getGenerationHistory() {
+        const stored = localStorage.getItem('slideAgent_generationHistory');
+        return stored ? JSON.parse(stored) : [];
+    },
+
     // Sync HTML Outline to YAML
     syncToYaml() {
         const container = UI.elements.outputOutline;
@@ -114,6 +182,10 @@ export const Data = {
     target_audience: "${identity.value}"
     learning_stage: "${stage.value}"
     total_pages: ${blocks.length}`;
+
+        if (SlideAgentState.useLogo && SlideAgentState.logoName) {
+            globalDesign += `\n    global_background: "${SlideAgentState.logoName}"`;
+        }
 
         const exportMode = UI.elements.exportMode ? UI.elements.exportMode.value : 'rich';
 

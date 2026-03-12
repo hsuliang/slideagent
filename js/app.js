@@ -19,6 +19,22 @@ const App = {
         setTimeout(() => {
             if (SlideAgentState.uploadedFiles.length > 0) UI.renderGallery();
         }, 100);
+
+        // Load Logo Settings
+        const savedUseLogo = localStorage.getItem('slideAgent_useLogo') === 'true';
+        const savedLogoName = localStorage.getItem('slideAgent_logoName');
+        if (savedUseLogo) {
+            SlideAgentState.useLogo = true;
+            if (UI.elements.useLogo) {
+                UI.elements.useLogo.checked = true;
+                const container = document.getElementById('logo-input-container');
+                if (container) container.classList.remove('hidden');
+            }
+        }
+        if (savedLogoName) {
+            SlideAgentState.logoName = savedLogoName;
+            if (UI.elements.logoName) UI.elements.logoName.value = savedLogoName;
+        }
     },
 
     bindEvents() {
@@ -52,12 +68,54 @@ const App = {
         // Custom Style Toggle
         if (els.style && els.customStyleContainer) {
             els.style.addEventListener('change', (e) => {
-                if (e.target.value === 'custom') {
+                const val = e.target.value;
+                if (val === 'custom') {
                     els.customStyleContainer.classList.remove('hidden');
-                    els.customStyleInput.focus();
+                    if (els.customStyleInput) {
+                        els.customStyleInput.value = '';
+                        els.customStyleInput.readOnly = false;
+                        els.customStyleInput.focus();
+                    }
+                    if (els.customStyleName) {
+                        els.customStyleName.value = '';
+                        els.customStyleName.readOnly = false;
+                    }
+                    if (els.addFavoriteStyleBtn) els.addFavoriteStyleBtn.classList.remove('hidden');
+                    if (els.deleteFavoriteStyleBtn) els.deleteFavoriteStyleBtn.classList.add('hidden');
+                } else if (val.startsWith('fav_')) {
+                    els.customStyleContainer.classList.remove('hidden');
+                    const favs = Data.getFavoriteStyles();
+                    const target = favs.find(f => f.id === val);
+                    if (target) {
+                        if (els.customStyleInput) {
+                            els.customStyleInput.value = target.prompt;
+                            els.customStyleInput.readOnly = true;
+                        }
+                        if (els.customStyleName) {
+                            els.customStyleName.value = target.name;
+                            els.customStyleName.readOnly = true;
+                        }
+                        if (els.addFavoriteStyleBtn) els.addFavoriteStyleBtn.classList.add('hidden');
+                        if (els.deleteFavoriteStyleBtn) els.deleteFavoriteStyleBtn.classList.remove('hidden');
+                    }
                 } else {
                     els.customStyleContainer.classList.add('hidden');
                 }
+            });
+        }
+
+        // Logo Toggle & Input
+        if (els.useLogo) {
+            els.useLogo.addEventListener('change', (e) => {
+                SlideAgentState.useLogo = e.target.checked;
+                localStorage.setItem('slideAgent_useLogo', e.target.checked);
+            });
+        }
+        if (els.logoName) {
+            els.logoName.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                SlideAgentState.logoName = val;
+                localStorage.setItem('slideAgent_logoName', val);
             });
         }
 
@@ -143,6 +201,27 @@ const App = {
         });
 
         // Output Actions
+        if (els.historyBtn) {
+            els.historyBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (els.historyMenu) {
+                    els.historyMenu.classList.toggle('hidden');
+                    if (!els.historyMenu.classList.contains('hidden')) {
+                        UI.renderHistoryMenu();
+                    }
+                }
+            });
+        }
+        
+        // Close history menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (els.historyMenu && !els.historyMenu.classList.contains('hidden')) {
+                if (!els.historyBtn.contains(e.target) && !els.historyMenu.contains(e.target)) {
+                    els.historyMenu.classList.add('hidden');
+                }
+            }
+        });
+
         if (els.outputOutline) {
             els.outputOutline.addEventListener('input', () => {
                 Data.syncToYaml();
@@ -209,6 +288,125 @@ const App = {
                 // Open the modal
                 UI.openMagicWandModal(slideIndex, slideTitle);
             });
+
+            // --- Selection AI Toolbar ---
+            // Detect text selection inside the outline
+            let selectionTimeout = null;
+
+            const handleTextSelection = () => {
+                // Add a micro-delay to allow browser to finish selection painting
+                clearTimeout(selectionTimeout);
+                selectionTimeout = setTimeout(() => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+
+                    // Only show toolbar if there's actual text selected and it's inside the outline
+                    if (selectedText.length > 0 && selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        let node = range.commonAncestorContainer;
+                        // If it's a text node, get its parent element
+                        if (node.nodeType === 3) {
+                            node = node.parentNode;
+                        }
+
+                        let targetElement = null;
+                        
+                        // Check if selection is within the output outline
+                        if (els.outputOutline && els.outputOutline.contains(node)) {
+                            targetElement = els.outputOutline;
+                        }
+
+                        // Also check if selection is inside the main-input textarea
+                        if (document.activeElement === els.mainInput && els.mainInput.value.substring(els.mainInput.selectionStart, els.mainInput.selectionEnd).trim().length > 0) {
+                            targetElement = els.mainInput;
+                        }
+
+                        if (targetElement) {
+                            let rect;
+                            if (targetElement === els.mainInput) {
+                                // Textboxes don't have getBoundingClientRect for text selections natively easily, 
+                                // so we position the toolbar near the mouse or at the top of the textarea.
+                                // We will use a fixed offset near the textarea's top center for simplicity
+                                const taRect = els.mainInput.getBoundingClientRect();
+                                rect = {
+                                    top: taRect.top + 20, // slightly down from the top
+                                    left: taRect.left + (taRect.width / 2) - 100,
+                                    width: 200,
+                                    height: 0
+                                };
+                            } else {
+                                rect = range.getBoundingClientRect();
+                            }
+                            
+                            // fallback for empty rect in Safari
+                            if (rect.width === 0 && rect.height === 0 && targetElement !== els.mainInput) {
+                                const rects = range.getClientRects();
+                                if (rects.length > 0) rect = rects[0];
+                            }
+
+                            UI.showSelectionToolbar(rect);
+                            
+                            // Store current context so AI knows where to replace
+                            SlideAgentState.activeSelectionContext = targetElement === els.mainInput ? 'input' : 'outline';
+                            
+                            return;
+                        }
+                    }
+                    UI.hideSelectionToolbar();
+                }, 100);
+            };
+
+            document.addEventListener('selectionchange', handleTextSelection);
+
+            // Hide toolbar when clicking outside of the outline or toolbar
+            document.addEventListener('mousedown', (e) => {
+                const toolbar = els.selectionToolbar;
+                if (!els.outputOutline.contains(e.target) && e.target !== els.mainInput && (!toolbar || !toolbar.contains(e.target))) {
+                    UI.hideSelectionToolbar();
+                }
+            });
+
+            // Prevent text selection from clearing when interacting with the toolbar
+            if (els.selectionToolbar) {
+                els.selectionToolbar.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                });
+            }
+
+            // Bind Toolbar Buttons
+            const bindToolbarAction = (btnElement, actionType) => {
+                if (!btnElement) return;
+                btnElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    let selectedText = '';
+                    
+                    if (SlideAgentState.activeSelectionContext === 'input') {
+                        selectedText = els.mainInput.value.substring(els.mainInput.selectionStart, els.mainInput.selectionEnd).trim();
+                    } else {
+                        const selection = window.getSelection();
+                        selectedText = selection.toString().trim();
+                    }
+                    
+                    if (selectedText) {
+                        AI.refineSelectedText(selectedText, actionType);
+                    }
+                });
+            };
+
+            bindToolbarAction(els.toolbarExpandBtn, 'expand');
+            bindToolbarAction(els.toolbarShortenBtn, 'shorten');
+            bindToolbarAction(els.toolbarProfessionalBtn, 'professional');
+            bindToolbarAction(els.toolbarCasualBtn, 'casual');
+            
+            if (els.toolbarCloseBtn) {
+                els.toolbarCloseBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    UI.hideSelectionToolbar();
+                    window.getSelection().removeAllRanges();
+                });
+            }
         }
 
         if (els.copyYamlBtn) els.copyYamlBtn.addEventListener('click', () => UI.copyToClipboard(els.outputYaml.textContent));
@@ -270,28 +468,65 @@ const App = {
         }
 
         // Custom Style Management
-        if (els.saveCustomStyleBtn) {
-            els.saveCustomStyleBtn.addEventListener('click', (e) => {
+        // Custom Style Management (Favorites)
+        if (els.addFavoriteStyleBtn) {
+            els.addFavoriteStyleBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const styleObj = {
-                    version: "SlideAgent_V12_Style",
-                    style_command: els.customStyleInput ? els.customStyleInput.value.trim() : ""
-                };
-                localStorage.setItem('slideAgent_customStyle', JSON.stringify(styleObj));
-                UI.showToast('自訂風格已儲存至瀏覽器本機記憶', 'success');
+                const name = els.customStyleName ? els.customStyleName.value.trim() : "";
+                const prompt = els.customStyleInput ? els.customStyleInput.value.trim() : "";
+                
+                if (!name || !prompt) {
+                    UI.showToast('請輸入風格名稱與視覺風格指令', 'warning');
+                    return;
+                }
+                
+                const newId = Data.saveFavoriteStyle(name, prompt);
+                UI.renderFavoriteStyles();
+                els.style.value = newId; 
+                
+                // trigger change event manually to update UI state to viewing mode
+                const event = new Event('change');
+                els.style.dispatchEvent(event);
+                
+                UI.showToast('已加入最愛風格', 'success');
+            });
+        }
+
+        if (els.deleteFavoriteStyleBtn) {
+            els.deleteFavoriteStyleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const currentId = els.style.value;
+                if (!currentId.startsWith('fav_')) return;
+                
+                Data.deleteFavoriteStyle(currentId);
+                UI.renderFavoriteStyles();
+                
+                // reset to default style
+                els.style.value = "custom";
+                const event = new Event('change');
+                els.style.dispatchEvent(event);
+                
+                UI.showToast('已刪除此最愛風格', 'success');
             });
         }
 
         if (els.exportCustomStyleBtn) {
             els.exportCustomStyleBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const styleObj = {
-                    version: "SlideAgent_V12_Style",
-                    name: "My Custom Style",
-                    description: "Exported from SlideAgent",
-                    style_command: els.customStyleInput ? els.customStyleInput.value.trim() : ""
+                const styles = Data.getFavoriteStyles();
+                
+                if (!styles || styles.length === 0) {
+                     UI.showToast('目前沒有任何最愛風格可以匯出', 'warning');
+                     return;
+                }
+
+                const exportData = {
+                    version: "SlideAgent_V12_Library",
+                    type: "favorite_styles",
+                    styles: styles.map(s => ({ name: s.name, prompt: s.prompt }))
                 };
-                FileHandler.download(JSON.stringify(styleObj, null, 2), 'custom_style.json', 'application/json');
+                
+                FileHandler.download(JSON.stringify(exportData, null, 2), 'slideagent_styles.json', 'application/json');
             });
         }
 
@@ -303,14 +538,26 @@ const App = {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
-                        const styleObj = JSON.parse(event.target.result);
-                        if (styleObj.version && styleObj.version.startsWith("SlideAgent_") && styleObj.style_command !== undefined) {
-                            if (els.customStyleInput) {
-                                els.customStyleInput.value = styleObj.style_command;
-                                // Save it locally as well so it persists
-                                localStorage.setItem('slideAgent_customStyle', JSON.stringify(styleObj));
-                                UI.showToast('自訂風格匯入成功！', 'success');
-                            }
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        // Check if it's the new library format
+                        if (importedData.version && importedData.type === "favorite_styles" && Array.isArray(importedData.styles)) {
+                            let count = 0;
+                            importedData.styles.forEach(style => {
+                                if (style.name && style.prompt) {
+                                    Data.saveFavoriteStyle(style.name, style.prompt);
+                                    count++;
+                                }
+                            });
+                            UI.renderFavoriteStyles();
+                            UI.showToast(`成功匯入 ${count} 個最愛風格！`, 'success');
+                            
+                        } else if (importedData.version && importedData.version.startsWith("SlideAgent_") && importedData.style_command !== undefined) {
+                            // Legacy single style import support
+                            let name = importedData.name || "匯入的舊版風格";
+                            Data.saveFavoriteStyle(name, importedData.style_command);
+                            UI.renderFavoriteStyles();
+                            UI.showToast('成功匯入 1 個舊版自訂風格！', 'success');
                         } else {
                             throw new Error("Invalid style file format.");
                         }
@@ -321,19 +568,6 @@ const App = {
                     e.target.value = ''; // Reset input
                 };
                 reader.readAsText(file);
-            });
-        }
-
-        if (els.downloadStyleTemplateBtn) {
-            els.downloadStyleTemplateBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const templateObj = {
-                    version: "SlideAgent_V12_Style",
-                    name: "您的風格名稱",
-                    description: "請描述這個風格的適用情境",
-                    style_command: "請在此輸入您的視覺咒語，例如：水彩畫法，暖色調，夢幻氛圍 --ar 16:9"
-                };
-                FileHandler.download(JSON.stringify(templateObj, null, 2), 'style_template.json', 'application/json');
             });
         }
     }

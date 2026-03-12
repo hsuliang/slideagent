@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+dist/
+backup/
+*.log
+test_out.txt
+test_selection.js
+test_selection_local.js
+ui.js

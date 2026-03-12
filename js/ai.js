@@ -84,6 +84,85 @@ export const AI = {
     }
   },
 
+  async refineSelectedText(selectedText, actionType) {
+    if (!SlideAgentState.apiKeys.length > 0) {
+      UI.showToast("請先設定 Gemini API Key", "error");
+      UI.switchTab('settings');
+      return;
+    }
+
+    // Determine the modification prompt based on actionType
+    let promptAction = "修改這段文字。";
+    if (actionType === 'expand') {
+      promptAction = "擴寫這段文字，增加細節與豐富度，使其更具體且具有說服力。";
+    } else if (actionType === 'shorten') {
+      promptAction = "縮寫這段文字，提取最核心的精華，使其簡潔有力，去掉冗詞贅字。";
+    } else if (actionType === 'professional') {
+      promptAction = "將這段文字替換為更正式、專業、具備商務語氣的表達方式。";
+    } else if (actionType === 'casual') {
+      promptAction = "將這段文字替換為更輕鬆、生動、白話且平易近人的口語表達方式。";
+    }
+
+    const systemPrompt = `你是一個專業的簡報文案編輯助理。
+你的任務是根據使用者的要求局部修改一段文字。
+要求：${promptAction}
+
+**嚴格防呆規則 (CRITICAL RULES)：**
+1. 你的回覆將會被程式直接取代對應的畫面文字。
+2. 絕對不要回傳任何開頭問候語 (例如 "好的"、"這是一段修改後的文字:")。
+3. 絕對不要使用 Markdown 引號或是程式碼區塊 (\`\`\`) 包覆文字。
+4. 絕對不要加上引號 ("" 或 「」)。
+5. 只回傳「修改完成後的純文字結果」，其他什麼都不要說。`;
+
+    UI.setSelectionToolbarLoading(true);
+
+    try {
+      const apiKey = SlideAgentState.apiKeys[0];
+      const model = 'gemini-2.5-flash';
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: selectedText }] }],
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            temperature: 0.5,
+            responseMimeType: "text/plain",
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'API 請求失敗');
+      }
+
+      const data = await response.json();
+      if (data.candidates && data.candidates[0].content.parts.length > 0) {
+        const newText = data.candidates[0].content.parts[0].text.trim();
+        
+        // Use UI method to safely replace text in DOM
+        if (UI.replaceSelectedText(newText)) {
+            // Trigger sync to YAML and history save
+            Data.syncToYaml();
+            Data.saveLocalHistory();
+            UI.hideSelectionToolbar();
+            UI.showToast("文字微調完成！", "success");
+        } else {
+            UI.showToast("無法替換文字，選取範圍可能已遺失", "warning");
+        }
+      } else {
+         throw new Error("回傳格式異常或遭封鎖");
+      }
+    } catch (err) {
+      console.error("Selection Refine Error:", err);
+      UI.showToast(`微調失敗: ${err.message}`, "error");
+    } finally {
+      UI.setSelectionToolbarLoading(false);
+    }
+  },
+
   async regenerateSingleSlide() {
     const targetIndex = SlideAgentState.magicWandTargetIndex;
     if (targetIndex === null || targetIndex === undefined) return;
@@ -210,7 +289,7 @@ RULES:
   async generateWithGemini(params, fileData) {
     // Retrieve Visual Keywords
     let visualKeywords = "Professional, clean, educational standard style.";
-    if (params.style === 'custom' && params.customStyle) {
+    if ((params.style === 'custom' || params.style.startsWith('fav_')) && params.customStyle) {
       visualKeywords = params.customStyle;
     } else {
       visualKeywords = SlideAgentState.StyleMap[params.style] || visualKeywords;
@@ -262,6 +341,10 @@ RULES:
       pageDisciplineRule = `3. **Page Discipline**: You MUST generate EXACTLY ${params.pages} CONTENT/COVER slides. (1 Cover + ${params.pages - 1} Content Pages). ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "THEN, you MUST append EXACTLY ONE 'deep_reflection' slide at the very end, making the total final output " + (params.pages + 1) + " slides." : "Do NOT add any extra slides."}`;
       totalPagesTemplate = UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? params.pages + 1 : params.pages;
     }
+    // Logo Rule
+    const logoRule = (SlideAgentState.useLogo && SlideAgentState.logoName) 
+      ? `\n[CRITICAL VISUAL RULE]: You MUST explicitly include instructions in EVERY single slide's \`visual_description\` to incorporate "${SlideAgentState.logoName}" as the background or a watermark logo to maintain brand consistency.` 
+      : "";
 
     let systemPrompt = '';
 
@@ -358,7 +441,7 @@ You must strictly follow this structure.
 1.  **NO GHOST TITLES**: It is NOT enough to mention the title in \`visual_description\`. You MUST write it into \`content.title\`.
 2.  **FALLBACK**: If you cannot find a colon-separated title, use the first line of the slide as the \`title\`.
 3.  **VERIFICATION**: Before outputting JSON, check: Does every content slide have a \`title\` field? If not, fix it.
-4.  **MULTI-MEDIA FOCUS**: You have been provided with multiple files. You MUST scan and acknowledge ALL files provided (text, PDF, AND Images). Do NOT ignore images if a PDF is present, and vice versa. Integrate information from ALL sources.
+4.  **MULTI-MEDIA FOCUS**: You have been provided with multiple files. You MUST scan and acknowledge ALL files provided (text, PDF, AND Images). Do NOT ignore images if a PDF is present, and vice versa. Integrate information from ALL sources.${logoRule}
 **IGNORE UI SETTINGS**: Ignore total_pages parameter. Use exact number of slides from input. Do NOT add any extra slides.
 🛑 CRITICAL: DO NOT under any circumstances generate a "deep_reflection" slide. Only generate "content_page" slides exactly matching the input text blocks.
 
@@ -388,7 +471,7 @@ ${pageDisciplineRule}
 4. **Content Depth**: 
    - **Adhere strictly to the Stage Level description above.**
    - "key_points" should be detailed and substantial (avoid short phrases).
-   - "visual_description" should be vivid and suitable for AI image generation.
+   - "visual_description" should be vivid and suitable for AI image generation.${logoRule}
 5. **Structure**: Slide 1 is 'cover', ${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "Last is 'deep_reflection', " : ""}Middle are 'content_page'${UI.elements.autoConclusion && UI.elements.autoConclusion.checked ? "" : " (or all remaining are 'content_page')"}.
 6. **Layout Strategy (Structured Variety)**:
     -   **Rule A: The Anchor (Fixed Title)**

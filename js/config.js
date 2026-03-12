@@ -9,6 +9,8 @@ export const SlideAgentState = {
     abortController: null,
     currentFilename: null, // Added to track filename from AI
     generationMode: 'auto', // 'auto' | 'direct'
+    useLogo: false,
+    logoName: '', // Used for global logo/watermark injection
 
     // AI Visual Keyword Mapping (StyleMap)
     StyleMap: {

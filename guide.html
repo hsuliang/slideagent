@@ -137,10 +137,189 @@
                     </div>
             </section>
 
+            </div>
+            </section>
+
+            <!-- Visual Prompt Guide Section -->
+            <section id="visual-prompt-guide"
+                class="mt-16 bg-gradient-to-br from-indigo-50 to-brand-50 rounded-3xl p-8 border border-indigo-100 shadow-sm">
+                <div class="flex items-center gap-4 mb-8">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg transform -rotate-6">
+                        <span class="text-2xl font-bold">🪄</span>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 m-0">如何撰寫「視覺咒語」？</h2>
+                        <p class="text-slate-500 mt-1">掌握關鍵字，讓 AI 為你打造獨一無二的簡報風格！</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6 text-slate-700">
+                    <p class="leading-relaxed">
+                        在 SlideAgent 中，您可以透過 <strong>「自訂視覺風格」</strong> 功能，使用文字來引導 AI
+                        生成的圖文版面（這就是所謂的「視覺咒語」）。一個好的視覺咒語能讓您的簡報瞬間充滿專屬個性。
+                    </p>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-indigo-600 mb-3 flex items-center gap-2">
+                            <span>💡</span> 萬用公式：主體風格 + 色彩/光影 + 氛圍/材質 + 額外參數
+                        </h3>
+                        <p class="mb-4 text-sm text-slate-600">不一定要全部填滿，但結合 2~3 個元素就能產生很棒的效果！</p>
+
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div class="bg-indigo-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-slate-800 mb-2">1. 主體風格 (Art Style)</h4>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>極簡主義 (Minimalist)</li>
+                                    <li>賽博龐克 (Cyberpunk)</li>
+                                    <li>水彩手繪 (Watercolor illustration)</li>
+                                    <li>復古拍立得 (Retro Polaroid)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-indigo-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-slate-800 mb-2">2. 色彩/光影 (Color & Light)</h4>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>低飽和度 (Low saturation)</li>
+                                    <li>霓虹漸層 (Neon gradients)</li>
+                                    <li>溫柔莫蘭迪色系 (Morandi colors)</li>
+                                    <li>電影光效 (Cinematic lighting)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-indigo-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-slate-800 mb-2">3. 氛圍/材質 (Vibe & Texture)</h4>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>科技感 (High-tech)</li>
+                                    <li>夢幻柔和 (Dreamy, soft)</li>
+                                    <li>雜訊顆粒 (Film grain, noise)</li>
+                                    <li>磨砂玻璃 (Frosted glass)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-indigo-50/50 p-4 rounded-xl">
+                                <h4 class="font-bold text-slate-800 mb-2">4. 額外參數 (Parameters)</h4>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>加上 <code class="bg-white px-1 py-0.5 rounded text-indigo-600">--ar 16:9</code>
+                                        (指定螢幕寬螢幕比例)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Logo Control Guide -->
+                    <div
+                        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-6 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 left-0 w-1 h-full bg-brand-500 transform origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-300">
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <span>🖼️</span> 浮水印與 Logo 控制技巧
+                        </h3>
+                        <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                            如果您在左側設定面板啟用了「加入 Logo」功能，請注意 AI 是透過自然語言來理解圖形的。如果您只寫檔名（例如 `logo.png`），AI
+                            可能會把它放大成充滿整個畫面的背景。要精準控制它，請直接在輸入框中使用**帶有方位與大小的描述**：
+                        </p>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                                <h4 class="font-bold text-red-700 mb-2 flex items-center gap-1"><svg class="w-4 h-4"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg> NG 寫法</h4>
+                                <code
+                                    class="text-sm text-red-600 block bg-white p-2 rounded border border-red-200">my_company_logo.png</code>
+                                <p class="text-xs text-red-500 mt-2">（AI 可能會把整個畫面塞滿 Logo，或是變成牆壁上的巨大海報）</p>
+                            </div>
+
+                            <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                                <h4 class="font-bold text-green-700 mb-2 flex items-center gap-1"><svg class="w-4 h-4"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg> 建議寫法</h4>
+                                <code
+                                    class="text-sm text-green-700 block bg-white p-2 text-wrap break-words rounded border border-green-200">在畫面的右上角 (top-right corner) 放置一個小型的 my_company_logo.png 作為商標。背景維持乾淨全白。</code>
+                                <p class="text-xs text-green-600 mt-2">（加上方位、大小形容詞，以及對背景的約束）</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-6">
+                        <h3 class="text-lg font-bold text-brand-600 mb-4 flex items-center gap-2">
+                            <span>🧪</span> 咒語範本參考 (可直接複製使用)
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl relative group">
+                                <button
+                                    class="absolute top-2 right-2 text-slate-400 hover:text-brand-600 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onclick="navigator.clipboard.writeText(this.parentElement.querySelector('code').innerText); alert('已複製指令！');">📋
+                                    複製</button>
+                                <h4 class="font-bold text-slate-800 mb-1">🎮 復古蒸氣波幻夢 (Vaporwave)</h4>
+                                <code
+                                    class="text-sm text-slate-600 block bg-white p-2 text-wrap break-words rounded border border-slate-200">Vaporwave aesthetic, 1980s retro-futurism, neon magenta and cyan gradients, classical marble statues, early 3D computer graphics, VHS glitch effects, nostalgic and surreal atmosphere --ar 16:9</code>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl relative group">
+                                <button
+                                    class="absolute top-2 right-2 text-slate-400 hover:text-brand-600 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onclick="navigator.clipboard.writeText(this.parentElement.querySelector('code').innerText); alert('已複製指令！');">📋
+                                    複製</button>
+                                <h4 class="font-bold text-slate-800 mb-1">🌿 質感純黑極簡 (Dark Aesthetic)</h4>
+                                <code
+                                    class="text-sm text-slate-600 block bg-white p-2 text-wrap break-words rounded border border-slate-200">Ultra minimalist dark mode, pure black background #000000, subtle gray elegant typography, thin line accents, sophisticated, professional, dramatic studio lighting, luxury tech startup vibe --ar 16:9</code>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl relative group">
+                                <button
+                                    class="absolute top-2 right-2 text-slate-400 hover:text-brand-600 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onclick="navigator.clipboard.writeText(this.parentElement.querySelector('code').innerText); alert('已複製指令！');">📋
+                                    複製</button>
+                                <h4 class="font-bold text-slate-800 mb-1">🧸 溫暖童趣繪本 (Storybook)</h4>
+                                <code
+                                    class="text-sm text-slate-600 block bg-white p-2 text-wrap break-words rounded border border-slate-200">Warm children's book illustration, watercolor style, soft pastel colors, cute elements, friendly organic shapes, comforting and educational atmosphere, high quality paper texture --ar 16:9</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Release Notes Section -->
             <section class="mt-16">
                 <hr class="border-slate-200 mb-8">
+
+                <!-- 20260311 Update -->
                 <details class="group open mb-6">
+                    <summary class="flex justify-between items-center cursor-pointer list-none mb-6">
+                        <h2 class="text-2xl font-bold text-slate-900 m-0">🎉 20260311 更新說明</h2>
+                        <span class="transition-transform duration-300 group-open:rotate-180 text-slate-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                    </summary>
+                    <div class="space-y-8">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
+                                <span>🚀</span> 四大重點更新
+                            </h3>
+                            <ul class="list-disc pl-5 space-y-4 text-slate-600">
+                                <li><strong>智慧文字選取工具列 (Selection AI
+                                        Toolbar)：</strong>在「內容大綱」選取文字即自動彈出，提供「縮短」、「專業化」、「白話文」等快速 AI 優化功能，操作更直覺。</li>
+                                <li><strong>個人化風格存摺 (Style Library)：</strong>支援將常用的視覺描述加入「最愛」並命名，方便跨專案快速套用。支援 JSON
+                                    格式匯入與匯出備份功能。</li>
+                                <li><strong>全新「加入 Logo」整合開關：</strong>介面與邏輯與人物 IP 完全統一，移除冗餘按鈕。支援自然語言描述精準控制 Logo
+                                    位置（如：右上角小型商標）。</li>
+                                <li><strong>自動大綱歷史紀錄 (Outline History)：</strong>系統會自動記憶最近 5
+                                    次的工作大綱。點選「歷史紀錄」下拉選單即可一鍵找回先前的設定，不怕遺失心血。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+
+                <hr class="border-slate-200 mb-8">
+                <details class="group mb-6">
                     <summary class="flex justify-between items-center cursor-pointer list-none mb-6">
                         <h2 class="text-2xl font-bold text-slate-900 m-0">🎉 20260310 更新說明</h2>
                         <span class="transition-transform duration-300 group-open:rotate-180 text-slate-400">
@@ -156,13 +335,16 @@
                                 <span>✨</span> 1. 介面優化與新功能
                             </h3>
                             <ul class="list-disc pl-5 space-y-3 text-slate-600">
-                                <li><strong>智能匯入文字展開：</strong>上傳純文字或 Markdown 檔時，內容會自動附加到文字框，並自動捲動至最底部，方便接續編輯。多檔匯入會自動加上分隔線。</li>
+                                <li><strong>智能匯入文字展開：</strong>上傳純文字或 Markdown
+                                    檔時，內容會自動附加到文字框，並自動捲動至最底部，方便接續編輯。多檔匯入會自動加上分隔線。</li>
                                 <li><strong>圖片/PDF 預覽優化：</strong>上傳非純文字檔案時，文字框不再塞滿亂碼，改為顯示系統提示，並將圖片集中於下方預覽圖庫。</li>
                                 <li><strong>介面按鈕化繁為簡：</strong>展開下方圖庫預覽區時，系統會自動隱藏重複的「繼續匯入」按鈕，保持介面清爽。</li>
                                 <li><strong>「清空全部」按鈕防呆升級：</strong>將清空按鈕從底部移回輸入區右上角，並放大字體與改為紅色警示設計，避免誤觸且更直覺。</li>
                                 <li><strong>底部按鈕完美對齊：</strong>「繼續匯入」與「開始生成」按鈕改為等高對齊，視覺比例大幅提升。</li>
-                                <li><strong>複製提示詞按鈕順流歸位：</strong>在「第三張教學卡片 (3. 一鍵生成簡報)」正下方新增「複製提示詞」按鈕，將複製提示詞功能順暢融入 NotebookLM 教學流程。</li>
-                                <li><strong>API Key 申請按鈕升級：</strong>放大 AI 大腦設定中的「免費申請 Key」連結，改為醒目的按鈕設計，讓新手更容易找到申請入口。</li>
+                                <li><strong>複製提示詞按鈕順流歸位：</strong>在「第三張教學卡片 (3. 一鍵生成簡報)」正下方新增「複製提示詞」按鈕，將複製提示詞功能順暢融入
+                                    NotebookLM 教學流程。</li>
+                                <li><strong>API Key 申請按鈕升級：</strong>放大 AI 大腦設定中的「免費申請 Key」連結，改為醒目的按鈕設計，讓新手更容易找到申請入口。
+                                </li>
                                 <li><strong>AI 自動分配頁數：</strong>取代死板的固定頁數，新增由系統自動根據內文豐富度判斷的「最佳化頁數」預設模式。</li>
                             </ul>
                         </div>

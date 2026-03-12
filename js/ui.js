@@ -27,19 +27,33 @@ export const UI = {
             tone: document.getElementById('tone'), // Added by instruction
             customStyleContainer: document.getElementById('custom-style-container'),
             customStyleInput: document.getElementById('custom-style-input'),
-            saveCustomStyleBtn: document.getElementById('save-custom-style-btn'),
+            favoriteStylesGroup: document.getElementById('favorite-styles-group'),
+            customStyleName: document.getElementById('custom-style-name'),
+            addFavoriteStyleBtn: document.getElementById('add-favorite-style-btn'),
+            deleteFavoriteStyleBtn: document.getElementById('delete-favorite-style-btn'),
             exportCustomStyleBtn: document.getElementById('export-custom-style-btn'),
             importCustomStyleInput: document.getElementById('import-custom-style-input'),
-            downloadStyleTemplateBtn: document.getElementById('download-style-template-btn'),
             deepOptimization: document.getElementById('deep-optimization'),
             exportMode: document.getElementById('export-mode'),
             autoConclusion: document.getElementById('auto-conclusion'),
             useCharacterIp: document.getElementById('use-character-ip'),
             characterIpName: document.getElementById('character-ip-name'),
+            useLogo: document.getElementById('use-logo'),
+            logoName: document.getElementById('logo-name'),
 
             // Smart Input Area
             dropZone: document.getElementById('drop-zone'),
             fileUpload: document.getElementById('file-upload'),
+            
+            // Selection Toolbar Elements
+            selectionToolbar: document.getElementById('selection-toolbar'),
+            selectionToolbarLoader: document.getElementById('selection-toolbar-loader'),
+            toolbarExpandBtn: document.getElementById('toolbar-expand-btn'),
+            toolbarShortenBtn: document.getElementById('toolbar-shorten-btn'),
+            toolbarProfessionalBtn: document.getElementById('toolbar-professional-btn'),
+            toolbarCasualBtn: document.getElementById('toolbar-casual-btn'),
+            toolbarCloseBtn: document.getElementById('toolbar-close-btn'),
+
             // Magic Wand Elements
             magicWandModal: document.getElementById('magic-wand-modal'),
             magicWandSlideTitle: document.getElementById('magic-wand-slide-title'),
@@ -67,6 +81,8 @@ export const UI = {
             podcastDownloadBtn: document.getElementById('download-podcast-txt-btn'), // Added for Transcript
             podcastCopyBtn: document.getElementById('podcast-copy-prompt-btn'), // Added by instruction
             copyPromptBtn: document.getElementById('copy-prompt-btn'), // Added for basic copy prompt
+            historyBtn: document.getElementById('history-btn'),
+            historyMenu: document.getElementById('history-menu'),
 
             // Estimator Dashboard
             statsDashboard: document.getElementById('stats-dashboard'),
@@ -102,6 +118,7 @@ export const UI = {
 
         this.initTabs();
         this.renderGallery();
+        this.renderFavoriteStyles();
 
         // Event Delegation for Upload Trigger (Robust handling for dynamic button)
         if (this.elements.inputPlaceholder) {
@@ -116,6 +133,26 @@ export const UI = {
         }
 
         // Auto-load logic if needed, but App.js handles high-level init
+    },
+
+    renderFavoriteStyles() {
+        const els = this.elements;
+        if (!els.favoriteStylesGroup) return;
+
+        const styles = Data.getFavoriteStyles();
+        els.favoriteStylesGroup.innerHTML = '';
+        
+        if (styles.length === 0) {
+            els.favoriteStylesGroup.innerHTML = '<option disabled>目前沒有最愛風格</option>';
+            return;
+        }
+
+        styles.forEach(style => {
+            const option = document.createElement('option');
+            option.value = style.id;
+            option.textContent = `❤️ ${style.name}`;
+            els.favoriteStylesGroup.appendChild(option);
+        });
     },
 
     toggleSettings(show) {
@@ -279,6 +316,102 @@ export const UI = {
             els.magicWandPrompt.disabled = false;
         }
     },
+
+    // --- Selection Toolbar Methods ---
+    showSelectionToolbar(rect) {
+        if (!this.elements.selectionToolbar) return;
+        const tb = this.elements.selectionToolbar;
+        
+        // Remove structural hidden class, keep opacity 0 for transition
+        tb.classList.remove('hidden');
+        
+        // Calculate position above the selection
+        // Use window relative coordinates and apply scroll offset
+        const topPos = rect.top + window.scrollY - tb.offsetHeight - 10;
+        const leftPos = rect.left + window.scrollX + (rect.width / 2) - (tb.offsetWidth / 2);
+
+        // Prevent toolbar from going off-screen horizontally
+        const maxLeft = window.innerWidth - tb.offsetWidth - 10;
+        const safeLeftPos = Math.max(10, Math.min(leftPos, maxLeft));
+
+        tb.style.top = `${topPos}px`;
+        tb.style.left = `${safeLeftPos}px`;
+        
+        // Trigger reflow
+        void tb.offsetWidth;
+        
+        // Transition in
+        tb.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        tb.classList.add('opacity-100', 'scale-100');
+    },
+
+    hideSelectionToolbar() {
+        if (!this.elements.selectionToolbar) return;
+        const tb = this.elements.selectionToolbar;
+        
+        tb.classList.remove('opacity-100', 'scale-100');
+        tb.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+        
+        // Wait for transition before actual hide
+        setTimeout(() => {
+            if (tb.classList.contains('opacity-0')) {
+                tb.classList.add('hidden');
+                // Reset loader state for next time
+                if (this.elements.selectionToolbarLoader) {
+                    this.elements.selectionToolbarLoader.classList.add('hidden');
+                }
+            }
+        }, 200);
+    },
+    
+    setSelectionToolbarLoading(isLoading) {
+        if (this.elements.selectionToolbarLoader) {
+            if (isLoading) {
+                this.elements.selectionToolbarLoader.classList.remove('hidden');
+            } else {
+                this.elements.selectionToolbarLoader.classList.add('hidden');
+            }
+        }
+    },
+
+    replaceSelectedText(newText) {
+        if (SlideAgentState.activeSelectionContext === 'input') {
+            const ta = this.elements.mainInput;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            if (start !== end) {
+                const val = ta.value;
+                ta.value = val.substring(0, start) + newText + val.substring(end);
+                
+                // Select the new text exactly like the original selection
+                ta.setSelectionRange(start, start + newText.length);
+                
+                // Trigger input event to re-evaluate state (like hide placeholder)
+                ta.dispatchEvent(new Event('input'));
+                return true;
+            }
+            return false;
+        } else {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return false;
+            
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            
+            // Assuming we are replacing inside output-outline, simple text node insert is fine
+            const textNode = document.createTextNode(newText);
+            range.insertNode(textNode);
+            
+            // Collapse selection to end of inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            return true;
+        }
+    },
+    // ------------------------------------
 
     updateInputState() {
         const els = this.elements;
@@ -523,6 +656,11 @@ export const UI = {
                         genBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                         genBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 產出簡報結構';
                     }
+                    
+                    // Save to history when completely done
+                    if (UI.elements.outputYaml) {
+                        Data.saveGenerationHistory(container.innerHTML, UI.elements.outputYaml.textContent);
+                    }
                 }
             }, 400); // 400ms delay between each slide block appearing
         }
@@ -567,6 +705,62 @@ export const UI = {
             this.updateInputState();
         } else {
             if (this.elements.resultsArea) this.elements.resultsArea.classList.add('hidden');
+        }
+    },
+
+    renderHistoryMenu() {
+        const historyContainer = document.getElementById('history-menu-items');
+        if (!historyContainer) return;
+        const history = Data.getGenerationHistory();
+        if (history.length === 0) {
+            historyContainer.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500 text-center">暫無歷史紀錄</div>';
+            return;
+        }
+
+        let html = '';
+        history.forEach((item) => {
+            html += `<button class="history-item w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors" data-id="${item.id}">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-bold text-slate-800 truncate pr-2">${item.title}</span>
+                            <span class="text-xs text-slate-400 shrink-0">${item.timeStr}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 line-clamp-1">恢復此版本的大綱與 YAML</div>
+                     </button>`;
+        });
+        historyContainer.innerHTML = html;
+
+        // Bind clicks
+        historyContainer.querySelectorAll('.history-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                const target = Data.getGenerationHistory().find(h => h.id === id);
+                if (target) {
+                    UI.restoreHistory(target);
+                }
+            });
+        });
+    },
+
+    restoreHistory(historyItem) {
+        if (this.elements.outputOutline) {
+            this.elements.outputOutline.innerHTML = historyItem.outline;
+            this.updateSlideNumbers();
+        }
+        if (this.elements.outputYaml) {
+            this.elements.outputYaml.textContent = historyItem.yaml;
+        }
+        if (this.elements.resultsArea) {
+            this.elements.resultsArea.classList.remove('hidden');
+        }
+        // Force update the stats based on the unified output
+        Data.syncToYaml();
+
+        this.showToast(`已恢復歷史紀錄：${historyItem.title}`, 'success');
+        
+        // Hide menu
+        const menu = document.getElementById('history-menu');
+        if (menu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
         }
     },
 
