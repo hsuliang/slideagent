@@ -4,6 +4,7 @@
 import { SlideAgentState } from './config.js';
 import { FileHandler } from './files.js';
 import { Data } from './data.js';
+import { AI } from './ai.js';
 
 export const UI = {
     elements: {}, // Will be populated in init()
@@ -40,6 +41,12 @@ export const UI = {
             characterIpName: document.getElementById('character-ip-name'),
             useLogo: document.getElementById('use-logo'),
             logoName: document.getElementById('logo-name'),
+            brandVoice: document.getElementById('brand-voice'),
+            styleUrl: document.getElementById('style-url'),
+            scrapeStyleBtn: document.getElementById('scrape-style-btn'),
+            styleImageUpload: document.getElementById('style-image-upload'),
+            styleAnalysisStatus: document.getElementById('style-analysis-status'),
+            styleImagePreview: document.getElementById('style-image-preview'),
 
             // Smart Input Area
             dropZone: document.getElementById('drop-zone'),
@@ -111,14 +118,25 @@ export const UI = {
             // Mode Tabs
             tabAuto: document.getElementById('tab-auto'),
             tabDirect: document.getElementById('tab-direct'),
-            tabAuto: document.getElementById('tab-auto'),
-            tabDirect: document.getElementById('tab-direct'),
             uploadTriggerBtn: document.getElementById('upload-trigger-btn'),
+
+            // Left Panel Tabs
+            tabOutline: document.getElementById('tab-outline'),
+            tabMindmap: document.getElementById('tab-mindmap'),
+            outlineViewContainer: document.getElementById('outline-view-container'),
+            mindmapViewContainer: document.getElementById('mindmap-view-container'),
+            mindmapCardsContainer: document.getElementById('mindmap-cards-container'),
+
+            // Visual Preview Tabs & Elements
+            tabYaml: document.getElementById('tab-yaml'),
+            yamlViewContainer: document.getElementById('yaml-view-container')
         };
 
         this.initTabs();
+        this.initLeftTabs();
         this.renderGallery();
         this.renderFavoriteStyles();
+        this.initBrandSpace();
 
         // Event Delegation for Upload Trigger (Robust handling for dynamic button)
         if (this.elements.inputPlaceholder) {
@@ -514,10 +532,10 @@ export const UI = {
 
         const toast = document.createElement('div');
         const icons = {
-            success: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
-            error: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
-            info: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
-            warning: '<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
+            success: '<svg class="w-6 h-6 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+            error: '<svg class="w-6 h-6 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
+            info: '<svg class="w-6 h-6 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+            warning: '<svg class="w-6 h-6 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
         };
 
         toast.className = `toast toast-${type}`;
@@ -529,24 +547,87 @@ export const UI = {
 
         toast.innerHTML = `
             ${icons[type] || icons.info}
-            <div>
+            <div class="flex-1">
                 <h4 class="font-bold text-sm">${title}</h4>
                 <p class="text-sm opacity-90">${message}</p>
             </div>
+            <button class="ml-2 text-current opacity-50 hover:opacity-100 transition-opacity shrink-0" onclick="this.parentElement.remove()">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         `;
 
-        toast.addEventListener('click', () => toast.remove());
         container.appendChild(toast);
 
         setTimeout(() => {
             if (toast.parentElement) {
                 toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%) scale(0.9)';
+                toast.style.transform = 'translateY(-10px) scale(0.95)';
                 setTimeout(() => {
                     if (toast.parentElement) toast.remove();
                 }, 400);
             }
         }, 5000);
+    },
+
+    handleSmartError(err) {
+        const container = this.elements.toastContainer;
+        const msg = err.message || '';
+        
+        // Default message
+        let guideMsg = msg;
+        let actionHtml = '';
+        let title = '發生錯誤';
+
+        if (msg.includes('INVALID_KEY') || msg.includes('API Keys') || msg.includes('API key not valid')) {
+            title = 'API 金鑰無效';
+            guideMsg = "⚠️ 可能是設定的 Key 有誤或包含多餘的空白。請前往設定畫面檢查，或至 Google AI Studio 申請新的金鑰。";
+            actionHtml = `<button onclick="document.getElementById('settings-btn').click(); this.parentElement.parentElement.remove();" class="mt-3 text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg border border-red-200 transition-colors font-bold w-full flex justify-center items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>前往檢查設定</button>`;
+        } else if (msg.includes('QUOTA_EXCEEDED') || msg.includes('429')) {
+            title = '額度已達上限';
+            guideMsg = "⏳ 您使用的 API Key 呼叫次數已達免費版上限（每分鐘 15 次）。請稍候 1 分鐘再試，或是更換不同的金鑰。";
+        } else if (msg.includes('Failed to fetch') || msg.toLowerCase().includes('network')) {
+            title = '網路連線異常';
+            guideMsg = "🌐 無法連接到 Google 伺服器。請檢查您的網路狀態，或確認是否需要開啟 VPN 才能存取。";
+        } else if (msg.includes('JSON') || msg.includes('parse') || msg.includes('syntax') || msg.includes('Format Error')) {
+            title = 'AI 生成格式異常';
+            guideMsg = "🧩 AI 這次回應的格式不符合預期（偶發錯亂）。別擔心，這不是您的問題，請直接再試一次！";
+            actionHtml = `<button onclick="document.getElementById('generate-btn').click(); this.parentElement.parentElement.remove();" class="mt-3 text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg border border-red-200 transition-colors font-bold w-full">🔄 重新嘗試生成</button>`;
+        } else if (msg.includes('Not Found') || msg.includes('404')) {
+             title = '模型不可用';
+             guideMsg = "⚠️ 您要求的 AI 模型可能已被下架或尚未開放，請稍後再試。";
+        }
+
+        if (!container) return alert(guideMsg);
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-error';
+        
+        toast.innerHTML = `
+            <svg class="w-6 h-6 mr-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="flex-1 min-w-0 pr-2">
+                <h4 class="font-bold text-[15px]">${title}</h4>
+                <p class="text-[13px] opacity-90 mt-1 leading-relaxed">${guideMsg}</p>
+                ${actionHtml}
+            </div>
+            <button class="text-current opacity-50 hover:opacity-100 transition-opacity shrink-0 flex items-start -mt-1 -mr-2 p-2" onclick="this.parentElement.remove()">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        `;
+
+        container.appendChild(toast);
+        
+        // Only auto dismiss if there's no action button, else let the user read it
+        if (!actionHtml) {
+             setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-10px) scale(0.95)';
+                    setTimeout(() => {
+                        if (toast.parentElement) toast.remove();
+                    }, 400);
+                }
+            }, 8000);
+        }
     },
 
     loadingInterval: null,
@@ -659,7 +740,11 @@ export const UI = {
                     
                     // Save to history when completely done
                     if (UI.elements.outputYaml) {
-                        Data.saveGenerationHistory(container.innerHTML, UI.elements.outputYaml.textContent);
+                        const finalYaml = UI.elements.outputYaml.textContent;
+                        Data.saveGenerationHistory(container.innerHTML, finalYaml);
+                        
+                        // Final master sync to ensure SlideAgentState.yamlData is populated
+                        Data.syncToYaml();
                     }
                 }
             }, 400); // 400ms delay between each slide block appearing
@@ -780,6 +865,205 @@ export const UI = {
         }
     },
 
+    updateStats(data) {
+        if (!this.elements.statsDashboard) return;
+        const yamlText = typeof data === 'string' ? data : window.jsyaml.dump(data);
+        const stats = Data.calculateStats(yamlText);
+        
+        if (this.elements.statPages) this.elements.statPages.innerText = stats.pages;
+        if (this.elements.statWords) this.elements.statWords.innerText = stats.words;
+        if (this.elements.statTime) this.elements.statTime.innerText = stats.time;
+        this.elements.statsDashboard.classList.remove('hidden');
+    },
+
+    updateYamlPreview(yaml) {
+        if (this.elements.outputYaml) {
+            this.elements.outputYaml.textContent = yaml;
+        }
+    },
+
+    renderOutline(data) {
+        const container = this.elements.outputOutline;
+        if (!container || !data || !data.slides) return;
+        
+        container.innerHTML = '';
+        
+        data.slides.forEach((slide, index) => {
+            const block = document.createElement('div');
+            const type = slide.type || 'content_page';
+            block.className = `slide-block p-6 mb-6 bg-slate-50 rounded-xl border-2 border-slate-100 hover:border-brand-200 transition-all group relative animate-fade-in-up`;
+            block.setAttribute('data-type', type);
+            block.setAttribute('data-index', index);
+            block.style.animationDelay = `${index * 50}ms`;
+
+            let innerHTML = `
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200/60">
+                    <div class="flex items-center gap-3">
+                        <span class="slide-number bg-brand-600 text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wider">Slide ${index + 1} - ${type.replace(/_/g, ' ')}</span>
+                        <span class="text-[11px] font-mono text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-100">${slide.layout_style || 'Default Layout'}</span>
+                    </div>
+                </div>
+            `;
+
+            if (type === 'cover') {
+                innerHTML += `
+                    <div class="space-y-4">
+                        <h2 data-field="title" contenteditable="true" class="text-2xl font-black text-slate-800 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.title || '無標題'}</h2>
+                        <p data-field="subtitle" contenteditable="true" class="text-lg text-slate-600 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.subtitle || ''}</p>
+                    </div>
+                `;
+            } else if (type === 'deep_reflection') {
+                innerHTML += `
+                    <div class="space-y-4 bg-white p-4 rounded-lg border border-slate-100">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">反駁與盲點</label>
+                            <p data-field="rebuttal" contenteditable="true" class="text-slate-700 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.rebuttal || ''}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">挑戰與提問</label>
+                            <p data-field="challenge" contenteditable="true" class="text-slate-700 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.challenge || ''}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">行動呼籲</label>
+                            <p data-field="persuasion" contenteditable="true" class="text-slate-700 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.persuasion || ''}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                innerHTML += `
+                    <div class="space-y-4">
+                        <h3 data-field="title" contenteditable="true" class="text-xl font-bold text-slate-800 outline-none focus:bg-brand-50 rounded px-1">${slide.content?.title || '無標題'}</h3>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">重點內容</label>
+                            <ul class="space-y-2">
+                `;
+                
+                const points = slide.content?.key_points || [];
+                points.forEach(point => {
+                    innerHTML += `<li data-field="point" contenteditable="true" class="text-slate-700 outline-none focus:bg-brand-50 rounded px-1 relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-brand-400">${point}</li>`;
+                });
+                
+                innerHTML += `
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (slide.visual_description) {
+                innerHTML += `
+                    <div class="mt-4 pt-3 border-t border-slate-200/60 flex items-start gap-2">
+                        <span class="text-sm">👁️</span>
+                        <p data-field="visual" contenteditable="true" class="text-xs text-slate-500 italic outline-none focus:bg-brand-50 rounded px-1 flex-1">${slide.visual_description}</p>
+                    </div>
+                `;
+            }
+
+            block.innerHTML = innerHTML;
+            container.appendChild(block);
+        });
+
+        // After re-rendering, sync back to YAML to ensure consistency
+        Data.syncToYaml();
+    },
+
+    initLeftTabs() {
+        const els = this.elements;
+        if (!els.tabOutline || !els.tabMindmap) return;
+
+        const updateLeftTabs = (mode) => {
+            if (mode === 'outline') {
+                els.tabOutline.className = "flex-1 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors flex items-center justify-center gap-2";
+                els.tabMindmap.className = "flex-1 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none transition-colors flex items-center justify-center gap-2";
+                els.outlineViewContainer.classList.remove('hidden');
+                els.mindmapViewContainer.classList.add('hidden');
+            } else {
+                els.tabOutline.className = "flex-1 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none transition-colors flex items-center justify-center gap-2";
+                els.tabMindmap.className = "flex-1 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors flex items-center justify-center gap-2";
+                els.outlineViewContainer.classList.add('hidden');
+                els.mindmapViewContainer.classList.remove('hidden');
+                this.renderMindmap();
+            }
+        };
+
+        els.tabOutline.addEventListener('click', () => updateLeftTabs('outline'));
+        els.tabMindmap.addEventListener('click', () => updateLeftTabs('mindmap'));
+    },
+
+    renderMindmap() {
+        const els = this.elements;
+        if (!els.mindmapCardsContainer) return;
+
+        const data = SlideAgentState.yamlData;
+        if (!data || !data.slides || data.slides.length === 0) {
+            els.mindmapCardsContainer.innerHTML = `<div class="flex flex-col items-center justify-center text-slate-400 h-full py-20 gap-2"><svg class="w-10 h-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><p class="font-medium text-sm">請先生成簡報資料</p></div>`;
+            return;
+        }
+
+        els.mindmapCardsContainer.innerHTML = '';
+
+        data.slides.forEach((slide, index) => {
+            const card = document.createElement('div');
+            card.className = 'mindmap-node bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:border-brand-300 hover:shadow-md transition-all flex items-start gap-4 animate-fade-in-up hover:scale-[1.01]';
+            card.dataset.index = index;
+            card.style.animationDelay = `${index * 30}ms`;
+
+            // Calculate Density
+            const points = (slide.content && Array.isArray(slide.content.key_points)) ? slide.content.key_points : [];
+            const textLen = points.join('').length;
+            let densityClass = 'density-moderate';
+            let densityLabel = '內容適中';
+            if (textLen > 150 || points.length > 5) {
+                densityClass = 'density-rich';
+                densityLabel = '豐富詳實';
+            } else if (textLen < 40 || points.length < 2) {
+                densityClass = 'density-thin';
+                densityLabel = '內容精簡';
+            }
+
+            const content = document.createElement('div');
+            content.className = 'flex-1';
+            
+            // Preview
+            const previewText = points.length > 0 ? points[0] : (slide.content && slide.content.script ? slide.content.script.substring(0, 40) + '...' : '無內容預覽');
+
+            content.innerHTML = `
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="bg-brand-50 px-2.5 py-0.5 rounded text-[11px] font-bold border border-brand-100 text-brand-600">PAGE ${index + 1}</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="density-indicator ${densityClass}"></span>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter">${densityLabel}</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-slate-800 text-sm leading-snug mb-1">${(slide.content && slide.content.title) || slide.title || '無標題'}</h3>
+                <p class="text-[12px] text-slate-400 italic line-clamp-1">${previewText}</p>
+            `;
+
+            card.appendChild(content);
+
+            // Logic Navigation: Click to Scroll Outline
+            card.addEventListener('click', () => {
+                const outlineBlocks = document.querySelectorAll('.slide-block');
+                if (outlineBlocks[index]) {
+                    UI.initLeftTabs(); // Ensure we switch back to outline view if needed
+                    const tabOutline = UI.elements.tabOutline;
+                    if (tabOutline) tabOutline.click(); 
+                    
+                    setTimeout(() => {
+                        outlineBlocks[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        outlineBlocks[index].classList.add('ring-4', 'ring-brand-400/30', 'transition-all');
+                        setTimeout(() => {
+                            outlineBlocks[index].classList.remove('ring-4', 'ring-brand-400/30');
+                        }, 2000);
+                    }, 100);
+                }
+            });
+
+            els.mindmapCardsContainer.appendChild(card);
+        });
+    },
+
+
     initTabs() {
         const els = this.elements;
         console.log("Initializing Tabs...", els.tabAuto, els.tabDirect);
@@ -838,5 +1122,239 @@ export const UI = {
 
         els.tabAuto.addEventListener('click', () => updateTabs('auto'));
         els.tabDirect.addEventListener('click', () => updateTabs('direct'));
+    },
+
+    initBrandSpace() {
+        const els = this.elements;
+        if (!els.brandVoice || !els.scrapeStyleBtn) return;
+
+        // Sync Brand Voice
+        els.brandVoice.addEventListener('input', (e) => {
+            SlideAgentState.brandVoice = e.target.value.trim();
+        });
+
+        // Sync Character IP
+        if (els.useCharacterIp) {
+            els.useCharacterIp.addEventListener('change', (e) => {
+                SlideAgentState.useCharacterIp = e.target.checked;
+            });
+        }
+        if (els.characterIpName) {
+            els.characterIpName.addEventListener('input', (e) => {
+                SlideAgentState.characterIpName = e.target.value.trim();
+            });
+        }
+
+        // Sync Logo
+        if (els.useLogo) {
+            els.useLogo.addEventListener('change', (e) => {
+                SlideAgentState.useLogo = e.target.checked;
+            });
+        }
+        if (els.logoName) {
+            els.logoName.addEventListener('input', (e) => {
+                SlideAgentState.logoName = e.target.value.trim();
+            });
+        }
+
+        // Scrape Style Button (URL)
+        els.scrapeStyleBtn.addEventListener('click', async () => {
+            const url = els.styleUrl.value.trim();
+            if (!url) {
+                this.showToast('請輸入參考連結', 'error');
+                return;
+            }
+
+            try {
+                const styleData = await AI.analyzeStyleFromUrl(url);
+                if (styleData) {
+                    this.showToast('風格分析完成！已套用核心參數。', 'success');
+                    this.applyScrapedStyleToUI(styleData);
+                }
+            } catch (error) {
+                console.error("Brand Space Error:", error);
+                this.showToast('風格分析失敗，請檢查網路或連結', 'error');
+            }
+        });
+
+        // Image Style Analysis (New 4.1)
+        if (els.styleImageUpload) {
+            els.styleImageUpload.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Preview
+                if (els.styleAnalysisStatus) {
+                    els.styleAnalysisStatus.classList.remove('hidden');
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        if (els.styleImagePreview) {
+                            els.styleImagePreview.innerHTML = `<img src="${event.target.result}" class="w-full h-full object-cover rounded-md shadow-sm">`;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                try {
+                    const base64 = await this.fileToBase64(file);
+                    const styleData = await AI.analyzeStyleFromImage(base64);
+                    if (styleData) {
+                        this.showToast('圖片風格解析成功！已套用參數', 'success');
+                        this.applyScrapedStyleToUI(styleData);
+                    }
+                } catch (err) {
+                    console.error("Image Analysis Error:", err);
+                    this.showToast('圖片解析失敗', 'error');
+                } finally {
+                    els.styleImageUpload.value = ''; // Reset
+                }
+            });
+        }
+    },
+
+    applyScrapedStyleToUI(styleData) {
+        const els = this.elements;
+        if (els.style) {
+            els.style.value = "custom";
+            // Manually trigger change event to sync with App.bindEvents logic
+            els.style.dispatchEvent(new Event('change'));
+
+            if (els.customStyleInput) {
+                els.customStyleInput.value = `AI 推薦美感：${styleData.styleDescriptor}\n主色：${styleData.primaryColor}\n氛圍：${styleData.fontVibe}`;
+                
+                // Visual focus/scroll to the result so user knows where it is
+                els.customStyleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                els.customStyleInput.classList.add('ring-2', 'ring-brand-400');
+                setTimeout(() => {
+                    els.customStyleInput.classList.remove('ring-2', 'ring-brand-400');
+                }, 2000);
+            }
+        }
+    },
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    },
+
+    toggleGlobalChat(forceState = null) {
+        if (!this.elements.globalChatPanel) return;
+
+        const isCurrentlyOpen = !this.elements.globalChatPanel.classList.contains('hidden');
+        const nextState = forceState !== null ? forceState : !isCurrentlyOpen;
+
+        if (nextState) {
+            this.elements.globalChatPanel.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating
+            setTimeout(() => {
+                this.elements.globalChatPanel.classList.remove('opacity-0', 'scale-95');
+                this.elements.globalChatPanel.classList.add('opacity-100', 'scale-100');
+            }, 10);
+            this.elements.globalChatInput.focus();
+            
+            if (this.elements.globalChatBadge) {
+                this.elements.globalChatBadge.classList.add('hidden');
+            }
+        } else {
+            this.elements.globalChatPanel.classList.remove('opacity-100', 'scale-100');
+            this.elements.globalChatPanel.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                this.elements.globalChatPanel.classList.add('hidden');
+            }, 300);
+        }
+    },
+
+    addGlobalChatMessage(text, isUser = false) {
+        const messagesContainer = this.elements.globalChatMessages;
+        if (!messagesContainer) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex items-start gap-2 ${isUser ? 'flex-row-reverse' : ''} animate-fade-in-up mt-4`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border ${
+            isUser ? 'bg-indigo-100 text-indigo-600 border-indigo-200' : 'bg-brand-100 text-brand-600 border-brand-200'
+        }`;
+        avatar.innerHTML = isUser ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>` : '✨';
+
+        const bubble = document.createElement('div');
+        bubble.className = `p-3 rounded-2xl shadow-sm border text-sm leading-relaxed inline-block max-w-[85%] break-words whitespace-pre-wrap ${
+            isUser 
+                ? 'bg-indigo-600 text-white rounded-tr-sm border-indigo-700' 
+                : 'bg-white text-slate-700 rounded-tl-sm border-slate-100'
+        }`;
+        bubble.innerHTML = text; // allow basic HTML from AI like bolding
+
+        msgDiv.appendChild(avatar);
+        msgDiv.appendChild(bubble);
+        messagesContainer.appendChild(msgDiv);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    },
+
+    setGlobalChatLoading(isLoading) {
+        if (!this.elements.globalChatSendBtn || !this.elements.globalChatInput) return;
+        
+        this.elements.globalChatInput.disabled = isLoading;
+        this.elements.globalChatSendBtn.disabled = isLoading;
+        
+        if (isLoading) {
+            this.elements.globalChatSendBtn.innerHTML = `<svg class="animate-spin w-4 h-4 ml-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            this.elements.globalChatInput.placeholder = "AI 正在重新生成簡報...";
+        } else {
+            this.elements.globalChatSendBtn.innerHTML = `<svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>`;
+            this.elements.globalChatInput.placeholder = "請輸入全域修改指令...";
+            this.elements.globalChatInput.focus();
+        }
+    },
+
+    async handleGlobalChatSend() {
+        if (!this.elements.globalChatInput) return;
+        
+        const prompt = this.elements.globalChatInput.value.trim();
+        if (!prompt) return;
+
+        this.elements.globalChatInput.value = '';
+
+        if (!SlideAgentState.yamlData) {
+            this.showToast('請先生成或匯入簡報資料，再來施展魔法喔！', 'warning');
+            return;
+        }
+
+        this.addGlobalChatMessage(prompt, true);
+        this.setGlobalChatLoading(true);
+
+        try {
+            // Lazy load AI to avoid circular dependency
+            const { AI } = await import('./ai.js');
+            const updatedYamlData = await AI.refineEntirePresentation(prompt, SlideAgentState.yamlData);
+            
+            SlideAgentState.yamlData = updatedYamlData;
+            
+            // Re-render EVERYTHING
+            this.updateYamlPreview(updatedYamlData.yamlText || window.jsyaml.dump(updatedYamlData));
+            this.renderOutline(updatedYamlData);
+            this.updateStats(updatedYamlData);
+            
+            this.addGlobalChatMessage("✨ 魔法施放完畢！我已經根據您的指示重新調整了簡報內容，請在主畫面預覽。您可以繼續告訴我需要修改的地方！");
+            
+            if (this.elements.globalChatBadge && this.elements.globalChatPanel.classList.contains('hidden')) {
+                this.elements.globalChatBadge.classList.remove('hidden');
+            }
+            this.showToast('全站修改已完成並更新', 'success');
+
+        } catch (error) {
+            console.error(error);
+            this.addGlobalChatMessage(`<div class="text-red-500 font-bold">❌ 哎呀，施法失敗了...</div><div class="mt-1 opacity-80"><small>${error.message}</small></div>`);
+            if(error.name !== "AbortError") {
+                 this.handleSmartError(error);
+            }
+        } finally {
+            this.setGlobalChatLoading(false);
+        }
     }
 };

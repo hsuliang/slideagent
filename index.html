@@ -8,6 +8,11 @@
     <script type="module" src="/src/main.js"></script>
     <link rel="icon" type="image/png" href="/Logo.png">
     <link rel="shortcut icon" href="/Logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=Cormorant+Garamond:wght@600&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@500;800&family=Noto+Sans+TC:wght@400;700&family=Outfit:wght@300;600&family=PT+Sans:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@500&family=Quicksand:wght@300;600&family=Roboto:wght@400;500&family=Roboto+Mono:wght@700&family=Share+Tech+Mono&family=Ubuntu:wght@500&display=swap"
+        rel="stylesheet">
 </head>
 
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
@@ -178,12 +183,13 @@
                         <!-- Settings Accordions -->
                         <div class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2 pb-4">
 
+
                             <!-- Group 1: Content & Structure (Open by default) -->
                             <details id="content-structure-group"
                                 class="bg-slate-50 rounded-xl border border-slate-200 group overflow-hidden shadow-sm"
                                 open>
                                 <summary
-                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm list-none outline-none">
+                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-800 text-base list-none outline-none">
                                     <span class="flex items-center gap-2">
                                         📦 內容與架構
                                     </span>
@@ -196,10 +202,10 @@
                                 <div class="px-5 pb-5 pt-2 space-y-4 border-t border-slate-100 bg-slate-50">
                                     <!-- Identity (Speaker Persona) -->
                                     <div class="space-y-2">
-                                        <label for="identity" class="block text-sm font-semibold text-slate-700">講者身分
-                                            (Speaker Persona)</label>
+                                        <label for="identity"
+                                            class="block text-sm font-semibold text-slate-700">講者身分</label>
                                         <select id="identity"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="teacher">👨‍🏫 老師 (教學引導)</option>
                                             <option value="student">🎓 同學 (報告分享)</option>
                                             <option value="executive">👔 企業主管 (專業佈達)</option>
@@ -208,10 +214,10 @@
 
                                     <!-- Speaker Tone -->
                                     <div class="space-y-2">
-                                        <label for="tone" class="block text-sm font-semibold text-slate-700">講者語氣
-                                            (Speaker Tone)</label>
+                                        <label for="tone"
+                                            class="block text-sm font-semibold text-slate-700">講者語氣</label>
                                         <select id="tone"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="standard" selected>🔍 標準客觀 (Standard)</option>
                                             <option value="humorous">🎭 幽默說書人 (Humorous)</option>
                                             <option value="inspirational">🔥 熱血激勵 (Inspirational)</option>
@@ -222,10 +228,10 @@
 
                                     <!-- Stage (Target Audience) -->
                                     <div class="space-y-2">
-                                        <label for="stage" class="block text-sm font-semibold text-slate-700">目標受眾
-                                            (Target Audience)</label>
+                                        <label for="stage"
+                                            class="block text-sm font-semibold text-slate-700">目標受眾</label>
                                         <select id="stage"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="elementary">國小 (生動有趣)</option>
                                             <option value="junior">國中 (探索互動)</option>
                                             <option value="high">高中 (邏輯思辨)</option>
@@ -236,10 +242,9 @@
 
                                     <!-- Goal -->
                                     <div class="space-y-2">
-                                        <label for="goal"
-                                            class="block text-sm font-semibold text-slate-700">簡報目的架構</label>
+                                        <label for="goal" class="block text-sm font-bold text-slate-700">簡報目的架構</label>
                                         <select id="goal"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="general" selected>標準通用 (General)</option>
                                             <option value="education">教學課程 (Education)</option>
                                             <option value="business">專案報告 (Business Report)</option>
@@ -249,10 +254,10 @@
 
                                     <!-- Pages -->
                                     <div class="space-y-2">
-                                        <label for="pages" class="block text-sm font-semibold text-slate-700">簡報總頁數
+                                        <label for="pages" class="block text-sm font-bold text-slate-700">簡報總頁數
                                         </label>
                                         <select id="pages"
-                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white">
+                                            class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="auto" selected>🤖 系統自定 (AI最佳化)</option>
                                             <option value="5">5 頁</option>
                                             <option value="6">6 頁</option>
@@ -279,7 +284,7 @@
                             <details id="visual-design-group"
                                 class="bg-indigo-50/20 rounded-xl border border-indigo-100 group overflow-hidden shadow-sm">
                                 <summary
-                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-700 text-sm list-none outline-none">
+                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-800 text-base list-none outline-none">
                                     <span class="flex items-center gap-2">
                                         🎨 視覺設計與產出
                                     </span>
@@ -292,8 +297,7 @@
                                 <div class="px-5 pb-5 pt-3 space-y-5 border-t border-slate-100 bg-slate-50/50">
                                     <!-- Style -->
                                     <div class="space-y-2">
-                                        <label for="style"
-                                            class="block text-sm font-semibold text-slate-700">美術視覺風格</label>
+                                        <label for="style" class="block text-sm font-bold text-slate-700">美術視覺風格</label>
                                         <select id="style"
                                             class="w-full rounded-lg border-indigo-200 border focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-4 shadow-sm text-slate-600 bg-white text-sm">
                                             <option value="custom">✨ 自訂視覺風格 (Custom)</option>
@@ -353,18 +357,20 @@
                                             class="hidden mt-2 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
                                             <label for="custom-style-input"
                                                 class="block text-sm font-semibold text-slate-700 mb-2">自訂風格指令</label>
-                                            <textarea id="custom-style-input" rows="3"
+                                            <textarea id="custom-style-input" rows="2"
                                                 class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 shadow-sm text-slate-600 text-sm resize-none"
-                                                placeholder="請描述您想要的風格（例如：復古拍立得風格、極簡黑白配上霓虹粉紅...）"></textarea>
-
+                                                placeholder="請描述您想要的風格，建議使用AI風格解析功能"></textarea>
                                             <div class="mt-3 bg-slate-50 p-2 rounded-lg border border-slate-100">
                                                 <div class="flex items-center gap-2">
-                                                    <input type="text" id="custom-style-name" placeholder="為此風格命名 (如: 我的質感黑白風)" class="flex-1 min-w-0 w-full rounded-md border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 text-sm text-slate-700">
-                                                    
-                                                    <button id="add-favorite-style-btn" title="加入最愛" class="shrink-0 w-10 h-10 flex items-center justify-center bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors shadow-sm text-lg">
+                                                    <input type="text" id="custom-style-name" placeholder="為此風格命名"
+                                                        class="flex-1 min-w-0 w-full rounded-md border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 text-sm text-slate-700">
+
+                                                    <button id="add-favorite-style-btn" title="加入最愛"
+                                                        class="shrink-0 w-10 h-10 flex items-center justify-center bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition-colors shadow-sm text-lg">
                                                         ❤️
                                                     </button>
-                                                    <button id="delete-favorite-style-btn" title="刪除此最愛風格" class="hidden shrink-0 w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors shadow-sm text-lg">
+                                                    <button id="delete-favorite-style-btn" title="刪除此最愛風格"
+                                                        class="hidden shrink-0 w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors shadow-sm text-lg">
                                                         🗑️
                                                     </button>
                                                 </div>
@@ -382,13 +388,20 @@
                                                             onclick="document.getElementById('import-custom-style-input').click()">
                                                             📥 匯入
                                                         </button>
-                                                        <input type="file" id="import-custom-style-input" class="hidden" accept=".json">
+                                                        <input type="file" id="import-custom-style-input" class="hidden"
+                                                            accept=".json">
                                                     </div>
                                                 </div>
                                                 <div class="text-center sm:text-right">
                                                     <a href="guide.html#visual-prompt-guide" target="_blank"
                                                         class="inline-flex items-center gap-1 text-[12px] text-brand-600 hover:text-brand-800 underline">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                            </path>
+                                                        </svg>
                                                         如何撰寫視覺咒語？ (教學)
                                                     </a>
                                                 </div>
@@ -400,7 +413,7 @@
 
                                     <!-- NotebookLM Export Mode Toggle -->
                                     <div class="space-y-2 pt-2 border-t border-indigo-100/50">
-                                        <label for="export-mode" class="block text-sm font-semibold text-slate-700">YAML
+                                        <label for="export-mode" class="block text-sm font-bold text-slate-700">YAML
                                             匯出模式</label>
                                         <select id="export-mode"
                                             class="w-full rounded-lg border-indigo-200 border focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-3 shadow-sm text-slate-600 text-sm bg-white">
@@ -413,7 +426,7 @@
                                     <div class="flex items-center justify-between pt-2 border-t border-indigo-100/50">
                                         <div>
                                             <label for="auto-conclusion"
-                                                class="text-sm font-semibold text-slate-700 block cursor-pointer">自動加結語頁</label>
+                                                class="text-sm font-bold text-slate-700 block cursor-pointer">自動加結語頁</label>
                                             <p class="text-[11px] text-slate-500 mt-0.5">強制在簡報最後加上深度省思頁</p>
                                         </div>
                                         <label class="relative inline-flex items-center cursor-pointer">
@@ -428,83 +441,166 @@
                                     <div class="flex items-center justify-between pt-2 border-t border-indigo-100/50">
                                         <div>
                                             <label for="deep-optimization"
-                                                class="text-sm font-semibold text-slate-700 block cursor-pointer">AI
+                                                class="text-sm font-bold text-slate-700 block cursor-pointer">AI
                                                 深度優化</label>
-                                            <p class="text-[11px] text-slate-500 mt-0.5">執行二次邏輯檢查與排版修訂</p>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">進行二次語意潤飾，但會多消耗額度</p>
                                         </div>
                                         <label class="relative inline-flex items-center cursor-pointer">
                                             <input type="checkbox" id="deep-optimization" class="sr-only peer">
                                             <div
-                                                class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500">
+                                                class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500">
                                             </div>
                                         </label>
                                     </div>
 
-                                    <!-- Character IP Option -->
+                                    <!-- Moodboard Scraper (Reinforced 4.1) -->
                                     <div class="pt-2 border-t border-indigo-100/50">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <div class="flex items-center gap-2 block">
-                                                    <label for="use-character-ip"
-                                                        class="text-sm font-semibold text-slate-700 cursor-pointer">加入人物
-                                                        IP</label>
-                                                    <a href="https://52hal.cc/ip" target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        class="text-[11px] text-brand-600 hover:text-brand-800 underline flex items-center gap-1">
-                                                        人物 IP 產生器
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
-                                                            </path>
-                                                        </svg>
-                                                    </a>
+                                        <div class="bg-indigo-50/40 rounded-xl border border-indigo-100 p-4 space-y-4">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="p-1 px-1.5 bg-indigo-100 text-indigo-600 rounded-md text-sm font-bold">🎯</span>
+                                                    <span class="text-sm font-bold text-slate-700">AI 風格解析</span>
                                                 </div>
-                                                <p class="text-[11px] text-slate-500 mt-0.5">隨機在簡報加入人物圖像</p>
                                             </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" id="use-character-ip" class="sr-only peer"
-                                                    onchange="document.getElementById('character-ip-input-container').classList.toggle('hidden', !this.checked)">
-                                                <div
-                                                    class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500">
+
+                                            <!-- Style Analysis Input -->
+                                            <div class="space-y-3">
+                                                <!-- Link Analysis -->
+                                                <div class="flex gap-2">
+                                                    <input type="text" id="style-url"
+                                                        class="flex-1 rounded-lg border-slate-200 border py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-100 outline-none"
+                                                        placeholder="輸入風格網站連結">
+                                                    <button id="scrape-style-btn"
+                                                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95">分析</button>
                                                 </div>
-                                            </label>
-                                        </div>
-                                        <div id="character-ip-input-container"
-                                            class="hidden mt-3 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
-                                            <label for="character-ip-name"
-                                                class="block text-sm font-semibold text-slate-700 mb-2">人物IP來源名稱</label>
-                                            <input type="text" id="character-ip-name"
-                                                class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 shadow-sm text-slate-600 text-sm"
-                                                placeholder="例如：Pixar style boy, 吉卜力小女孩...">
+
+                                                <!-- Image Analysis -->
+                                                <div class="flex items-center gap-3">
+                                                    <div class="flex-1 h-[1px] bg-slate-200"></div>
+                                                    <span
+                                                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">或上傳圖片</span>
+                                                    <div class="flex-1 h-[1px] bg-slate-200"></div>
+                                                </div>
+
+                                                <button id="style-image-btn"
+                                                    onclick="document.getElementById('style-image-upload').click()"
+                                                    class="w-full py-2.5 bg-white border-2 border-dashed border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-indigo-600 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 group">
+                                                    <svg class="w-4 h-4 group-hover:scale-110 transition-transform"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                    上傳風格參考圖檔(png,jpg)
+                                                </button>
+                                                <input type="file" id="style-image-upload" class="hidden"
+                                                    accept="image/*">
+
+                                                <!-- Style Analysis Preview (Hidden initially) -->
+                                                <div id="style-analysis-status"
+                                                    class="hidden flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-white/80 shadow-inner">
+                                                    <div class="w-10 h-10 rounded-lg bg-indigo-100 animate-pulse flex items-center justify-center"
+                                                        id="style-image-preview">
+                                                        <span class="text-xs">⏳</span>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <div class="h-2 w-24 bg-indigo-100 rounded-full mb-1"></div>
+                                                        <div class="h-2 w-16 bg-slate-100 rounded-full"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
                                         </div>
                                     </div>
+                            </details>
 
-                                    <!-- Logo Option -->
-                                    <div class="pt-2 border-t border-indigo-100/50">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <div class="flex items-center gap-2">
-                                                    <label for="use-logo" class="text-sm font-semibold text-slate-700 cursor-pointer block">加入 Logo</label>
-                                                    <a href="guide.html#visual-prompt-guide" target="_blank"
-                                                        class="text-[11px] text-brand-600 hover:text-brand-800 underline flex items-center gap-1">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                        如何使用？
-                                                    </a>
-                                                </div>
-                                                <p class="text-[11px] text-slate-500 mt-0.5">強制在每張投影片加入指定標誌</p>
-                                            </div>
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" id="use-logo" class="sr-only peer"
-                                                    onchange="document.getElementById('logo-input-container').classList.toggle('hidden', !this.checked)">
-                                                <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500">
-                                                </div>
+                            <!-- Group 3: Brand Space (Optional 4.2) -->
+                            <details id="brand-space-group"
+                                class="bg-brand-50/20 rounded-xl border border-brand-100 group overflow-hidden shadow-sm">
+                                <summary
+                                    class="px-5 py-4 cursor-pointer flex justify-between items-center bg-white hover:bg-slate-50 transition-colors font-bold text-slate-800 text-base list-none outline-none">
+                                    <span class="flex items-center gap-2">
+                                        🏢 品牌空間
+                                        <span
+                                            class="ml-2 px-2 py-0.5 bg-brand-100 text-brand-700 text-[10px] rounded-full font-bold shadow-sm border border-brand-200">選配</span>
+                                    </span>
+                                    <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </summary>
+                                <div class="px-5 pb-5 pt-3 space-y-4 border-t border-slate-100 bg-brand-50/20">
+                                    <div class="space-y-3">
+                                        <!-- Brand Voice -->
+                                        <div class="space-y-1.5">
+                                            <label for="brand-voice"
+                                                class="text-sm font-bold text-slate-700 flex items-center justify-between">
+                                                <span>文字語調</span>
+                                                <span class="text-[10px] font-normal text-slate-400 italic"></span>
                                             </label>
+                                            <input type="text" id="brand-voice"
+                                                class="w-full rounded-lg border-slate-200 border py-2 px-3 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all outline-none bg-white/90"
+                                                placeholder="例如：幽默親切、冷靜權威...">
                                         </div>
-                                        <div id="logo-input-container" class="hidden mt-3 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
-                                            <label for="logo-name" class="block text-sm font-semibold text-slate-700 mb-2">Logo 名稱或描述</label>
-                                            <input type="text" id="logo-name" class="w-full rounded-lg border-slate-300 border focus:border-brand-500 focus:ring-brand-500 py-2 px-3 shadow-sm text-slate-600 text-sm" placeholder="例如：右上角的 company_logo.png">
+
+                                        <div class="space-y-3">
+                                            <!-- Character IP -->
+                                            <div class="space-y-1.5">
+                                                <div class="flex items-center justify-between mb-0.5">
+                                                    <label class="text-sm font-bold text-slate-700">加入個人IP</label>
+                                                    <a href="https://52hal.cc/ip" target="_blank"
+                                                        class="text-[10px] text-indigo-500 hover:text-indigo-700 font-medium underline decoration-indigo-200 underline-offset-2 transition-colors">🔗
+                                                        個人 IP 產生器</a>
+                                                </div>
+                                                <div
+                                                    class="p-4 bg-white/80 rounded-xl border border-slate-100 shadow-sm space-y-2">
+                                                    <div class="flex items-center justify-between">
+                                                        <label for="use-character-ip"
+                                                            class="text-[11px] font-bold text-slate-600 cursor-pointer">啟用人物
+                                                            IP</label>
+                                                        <label class="relative inline-flex items-center cursor-pointer">
+                                                            <input type="checkbox" id="use-character-ip"
+                                                                class="sr-only peer">
+                                                            <div
+                                                                class="w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-brand-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                    <div id="character-ip-input-container" class="hidden mt-2">
+                                                        <input type="text" id="character-ip-name"
+                                                            class="w-full rounded-md border-slate-200 border py-1.5 px-3 text-[10px] focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none"
+                                                            placeholder="填入要放到NBLM的個人IP來源名稱">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Logo -->
+                                            <div class="space-y-1.5">
+                                                <label class="text-sm font-bold text-slate-700">加入品牌 Logo</label>
+                                                <div
+                                                    class="p-4 bg-white/80 rounded-xl border border-slate-100 shadow-sm space-y-2">
+                                                    <div class="flex items-center justify-between">
+                                                        <label for="use-logo"
+                                                            class="text-[11px] font-bold text-slate-600 cursor-pointer">啟用
+                                                            Logo</label>
+                                                        <label class="relative inline-flex items-center cursor-pointer">
+                                                            <input type="checkbox" id="use-logo" class="sr-only peer">
+                                                            <div
+                                                                class="w-8 h-4 bg-slate-200 rounded-full peer peer-checked:bg-brand-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                    <div id="logo-input-container" class="hidden mt-2">
+                                                        <input type="text" id="logo-name"
+                                                            class="w-full rounded-md border-slate-200 border py-1.5 px-3 text-[10px] focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none"
+                                                            placeholder="標誌名稱 (例如：SlideAgent)">
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -530,28 +626,39 @@
                                         </svg>
                                     </span>
                                     內容輸入與素材上傳
-                                    <span class="text-[11px] font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 ml-1 hidden sm:inline-block">💡 支援圖文與檔案混合輸入</span>
+                                    <span
+                                        class="text-[11px] font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 ml-1 hidden sm:inline-block">💡
+                                        支援圖文與檔案混合輸入</span>
                                 </h3>
                                 <div class="flex items-center gap-2">
                                     <!-- History Dropdown Button -->
                                     <div class="relative">
                                         <button id="history-btn"
-                                            class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold transition-colors border border-indigo-100 shadow-sm" title="載入先前的簡報紀錄">
+                                            class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold transition-colors border border-indigo-100 shadow-sm"
+                                            title="載入先前的簡報紀錄">
                                             🕒 歷史紀錄
                                         </button>
                                         <!-- Dropdown Menu -->
-                                        <div id="history-menu" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-[100] overflow-hidden">
-                                            <div class="bg-slate-50 px-4 py-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">最近 5 次生成紀錄</div>
-                                            <div id="history-menu-items" class="max-h-64 overflow-y-auto outline-none custom-scrollbar">
+                                        <div id="history-menu"
+                                            class="hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-[100] overflow-hidden">
+                                            <div
+                                                class="bg-slate-50 px-4 py-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                                最近 5 次生成紀錄</div>
+                                            <div id="history-menu-items"
+                                                class="max-h-64 overflow-y-auto outline-none custom-scrollbar">
                                                 <!-- Dynamic Items Here -->
                                             </div>
                                         </div>
                                     </div>
 
                                     <button id="clear-btn" type="button"
-                                        class="text-red-500 bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-600 text-sm font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm group" title="清空全部">
-                                        <svg class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        class="text-red-500 bg-red-50 border border-red-200 hover:bg-red-100 hover:text-red-600 text-sm font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm group"
+                                        title="清空全部">
+                                        <svg class="w-4 h-4 group-hover:-translate-y-0.5 transition-transform"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
                                         </svg>
                                         清空全部
                                     </button>
@@ -612,11 +719,12 @@
                             <button id="add-file-action-btn" type="button"
                                 class="hidden text-brand-600 border-2 border-brand-100 bg-brand-50 hover:border-brand-300 hover:bg-brand-100 text-base font-bold px-6 py-0 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm w-auto">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
                                 </svg>
                                 繼續匯入
                             </button>
-                            
+
                             <!-- Right Action (Generate) -->
                             <div class="flex-1 flex flex-col h-full">
                                 <button id="generate-btn"
@@ -718,9 +826,12 @@
                                 於 NotebookLM 中，直接點擊 <strong>"簡報"</strong> 指令，再點擊「生成」。
                             </p>
                             <div class="mt-3 w-full border-t border-slate-100 pt-3">
-                                <button id="copy-prompt-btn" type="button" class="w-full text-[11px] font-bold px-2 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white rounded transition-all flex items-center justify-center gap-1 shadow-sm hover:shadow">
+                                <button id="copy-prompt-btn" type="button"
+                                    class="w-full text-[11px] font-bold px-2 py-2 bg-gradient-to-r from-brand-500 to-indigo-600 hover:from-brand-600 hover:to-indigo-700 text-white rounded transition-all flex items-center justify-center gap-1 shadow-sm hover:shadow">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                        </path>
                                     </svg>
                                     📋 複製提示詞
                                 </button>
@@ -792,30 +903,76 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Left: Editable Outline -->
+                    <!-- Left: Editable Outline / Interactive Map -->
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                <span>📝</span> 簡報大綱編輯器
-                            </h2>
+                        <div class="flex items-center justify-between border-b border-slate-200">
+                            <div class="flex w-full">
+                                <button id="tab-outline"
+                                    class="flex-1 py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors flex items-center justify-center gap-2">
+                                    <span>📝</span> 簡報大綱編輯
+                                </button>
+                                <button id="tab-mindmap"
+                                    class="flex-1 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 focus:outline-none transition-colors flex items-center justify-center gap-2">
+                                    <span>🧩</span> 結構心智圖
+                                </button>
+                            </div>
                         </div>
-                        <div id="output-outline" contenteditable="true"
-                            class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 h-[600px] outline-none focus:ring-2 focus:ring-brand-500/20 prose prose-slate max-w-none text-slate-700 overflow-y-auto custom-scrollbar">
-                            <!-- Dynamic Content -->
+
+                        <!-- Text Outline Block -->
+                        <div id="outline-view-container" class="transition-all duration-300">
+                            <div id="output-outline" contenteditable="true"
+                                class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 h-[600px] outline-none focus:ring-2 focus:ring-brand-500/20 prose prose-slate max-w-none text-slate-700 overflow-y-auto custom-scrollbar">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+
+                        <!-- Mindmap / Drag & Drop Block -->
+                        <div id="mindmap-view-container" class="hidden transition-all duration-300">
+                            <div
+                                class="bg-slate-50 rounded-xl shadow-inner border border-slate-200 p-4 sm:p-6 h-[600px] overflow-y-auto custom-scrollbar relative">
+                                <!-- Instructions -->
+                                <div
+                                    class="text-xs text-slate-500 text-center mb-4 font-bold bg-white p-2 rounded-lg border border-slate-200 shadow-sm sticky top-0 z-10 flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                                        </path>
+                                    </svg>
+                                    直接上下拖曳卡片即可調整頁面順序，系統會自動更新資料！
+                                </div>
+
+                                <!-- Container for sortable items -->
+                                <div id="mindmap-cards-container" class="space-y-3 flex flex-col pb-10">
+                                    <div
+                                        class="flex flex-col items-center justify-center text-slate-400 h-full py-20 gap-2">
+                                        <svg class="w-10 h-10 opacity-50" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <p class="font-medium text-sm">請先生成簡報資料</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Right: Real-time Data -->
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                <span>👀</span> YAML 預覽
-                            </h2>
+                        <div class="flex items-center justify-between border-b border-slate-200">
+                            <div class="flex w-full">
+                                <button id="tab-yaml"
+                                    class="w-full py-2 text-sm font-bold text-brand-600 border-b-2 border-brand-600 focus:outline-none transition-colors flex items-center justify-center gap-2">
+                                    <span>👀</span> YAML 資料預覽
+                                </button>
+                            </div>
                         </div>
 
                         <!-- YAML Block -->
-                        <div
-                            class="bg-slate-900 rounded-xl shadow-lg border border-slate-700 overflow-hidden flex flex-col h-[600px]">
+                        <div id="yaml-view-container"
+                            class="bg-slate-900 rounded-xl shadow-lg border border-slate-700 overflow-hidden flex flex-col h-[600px] transition-all duration-300">
                             <div
                                 class="bg-slate-800/50 px-4 py-3 border-b border-slate-700 flex justify-between items-center shrink-0">
                                 <div class="flex-1"></div>
@@ -848,6 +1005,9 @@
                                 </div>
                             </div>
                         </div>
+
+
+
                     </div>
                 </div>
 
@@ -874,8 +1034,14 @@
 
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <label for="api-key" class="block text-sm font-semibold text-slate-700">Google Gemini API
-                            Key</label>
+                        <div class="flex items-center gap-2">
+                            <label for="api-key" class="block text-sm font-semibold text-slate-700">Google Gemini API
+                                Key</label>
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank"
+                                class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded shadow-sm transition-colors flex items-center gap-1">
+                                🆓 免費申請
+                            </a>
+                        </div>
                         <button id="toggle-key-visibility"
                             class="text-slate-400 hover:text-brand-600 transition-colors p-1 rounded-md hover:bg-slate-100 flex items-center gap-1"
                             title="顯示/隱藏 API Key">
@@ -890,13 +1056,6 @@
                     <p class="text-xs text-slate-500 mb-3">
                         支援多組 Key 輪替以提升穩定性。您的 Key 僅會儲存在瀏覽器本地端。
                     </p>
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank"
-                        class="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg shadow-sm border border-indigo-200 transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.25l7.52-7.52A6 6 0 0115 7z"></path>
-                        </svg>
-                        🆓 免費申請 API Key
-                    </a>
                 </div>
 
                 <div class="pt-2">
@@ -1054,15 +1213,18 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-8 mt-12">
         <div class="max-w-5xl mx-auto px-4 text-center">
-            <p class="text-slate-400 text-sm">丙午驚蟄 | Antigravity Agent 習作 | Made by <a href="https://bit.ly/Aliang"
-                    target="_blank" class="hover:text-brand-500 transition-colors">ㄚ亮笑長練功坊</a></p>
+            <p class="text-slate-400 text-sm">丙午・驚蟄・精校 | Antigravity Agent 習作 | Made by <a href="https://bit.ly/Aliang"
+                    target="_blank" class="hover:text-brand-500 transition-colors">丫亮笑長練功坊</a></p>
         </div>
     </footer>
 
     <!-- Selection AI Toolbar (Floating Widget) -->
-    <div id="selection-toolbar" class="hidden absolute z-50 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 flex items-center gap-1 transition-all duration-200 transform scale-95 opacity-0 pointer-events-none" style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));">
+    <div id="selection-toolbar"
+        class="hidden absolute z-50 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 flex items-center gap-1 transition-all duration-200 transform scale-95 opacity-0 pointer-events-none"
+        style="filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));">
         <!-- Loading Overlay (hidden by default) -->
-        <div id="selection-toolbar-loader" class="hidden absolute inset-0 bg-white/90 backdrop-blur-[2px] rounded-xl flex items-center justify-center z-10">
+        <div id="selection-toolbar-loader"
+            class="hidden absolute inset-0 bg-white/90 backdrop-blur-[2px] rounded-xl flex items-center justify-center z-10">
             <div class="flex items-center gap-2">
                 <div class="w-4 h-4 border-2 border-brand-200 border-t-brand-500 rounded-full animate-spin"></div>
                 <span class="text-xs font-bold text-brand-600">AI 處理中...</span>
@@ -1070,25 +1232,119 @@
         </div>
 
         <!-- Toolbar Buttons -->
-        <button id="toolbar-expand-btn" class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-brand-600" title="讓 AI 擴寫這段文字，增加細節與豐富度">
+        <button id="toolbar-expand-btn"
+            class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-brand-600"
+            title="讓 AI 擴寫這段文字，增加細節與豐富度">
             <span>✨</span> 擴寫
         </button>
         <div class="w-px h-4 bg-slate-200 mx-0.5"></div>
-        <button id="toolbar-shorten-btn" class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-indigo-600" title="讓 AI 縮寫這段文字，提取精華">
+        <button id="toolbar-shorten-btn"
+            class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-indigo-600"
+            title="讓 AI 縮寫這段文字，提取精華">
             <span>✂️</span> 縮寫
         </button>
         <div class="w-px h-4 bg-slate-200 mx-0.5"></div>
-        <button id="toolbar-professional-btn" class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-blue-600" title="將文字轉換為更正式、專業的商務語氣">
+        <button id="toolbar-professional-btn"
+            class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-blue-600"
+            title="將文字轉換為更正式、專業的商務語氣">
             <span>💼</span> 專業語氣
         </button>
         <div class="w-px h-4 bg-slate-200 mx-0.5"></div>
-        <button id="toolbar-casual-btn" class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-orange-600" title="將文字轉換為更輕鬆、生動的口語表達">
+        <button id="toolbar-casual-btn"
+            class="px-2.5 py-1.5 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1 hover:text-orange-600"
+            title="將文字轉換為更輕鬆、生動的口語表達">
             <span>😄</span> 生動口語
         </button>
-        
+
         <div class="w-px h-4 bg-slate-200 mx-1"></div>
-        <button id="toolbar-close-btn" class="w-6 h-6 flex items-center justify-center hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-colors" title="關閉工具列">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <button id="toolbar-close-btn"
+            class="w-6 h-6 flex items-center justify-center hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
+            title="關閉工具列">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Global AI Refinement Chat (Floating) -->
+    <div id="global-chat-container"
+        class="fixed bottom-6 right-6 z-[90] flex flex-col items-end gap-3 pointer-events-none">
+        <!-- Chat Panel (Hidden by default) -->
+        <div id="global-chat-panel"
+            class="hidden pointer-events-auto w-[340px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right transform scale-95 opacity-0">
+            <!-- Header -->
+            <div
+                class="bg-gradient-to-r from-brand-600 to-indigo-600 px-4 py-3 flex justify-between items-center shrink-0 shadow-sm relative z-10">
+                <div class="flex items-center gap-2 text-white">
+                    <span class="text-lg">✨</span>
+                    <div>
+                        <h3 class="font-bold text-sm leading-tight">全站 AI 魔法師</h3>
+                        <p class="text-[10px] text-brand-100 opacity-90">修改整份簡報結構與語氣</p>
+                    </div>
+                </div>
+                <button id="close-global-chat"
+                    class="text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="global-chat-messages"
+                class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4 custom-scrollbar relative">
+                <!-- Welcome Message -->
+                <div class="flex items-start gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center shrink-0 shadow-sm border border-brand-200">
+                        ✨</div>
+                    <div
+                        class="bg-white p-3 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 text-sm text-slate-700 leading-relaxed inline-block max-w-[85%] relative">
+                        哈囉！我是您的全站魔法師。請告訴我您想對<b>整份簡報</b>進行什麼調整？
+                        <div class="mt-2 space-y-1.5">
+                            <button
+                                class="chat-suggestion-btn text-left text-xs bg-slate-50 hover:bg-brand-50 text-slate-600 hover:text-brand-700 px-2.5 py-2 rounded-lg border border-slate-200 block w-full transition-all hover:border-brand-300 hover:shadow-sm">「把整體語氣變得更幽默生動」</button>
+                            <button
+                                class="chat-suggestion-btn text-left text-xs bg-slate-50 hover:bg-brand-50 text-slate-600 hover:text-brand-700 px-2.5 py-2 rounded-lg border border-slate-200 block w-full transition-all hover:border-brand-300 hover:shadow-sm">「將難度調整為適合國小學生」</button>
+                            <button
+                                class="chat-suggestion-btn text-left text-xs bg-slate-50 hover:bg-brand-50 text-slate-600 hover:text-brand-700 px-2.5 py-2 rounded-lg border border-slate-200 block w-full transition-all hover:border-brand-300 hover:shadow-sm">「字數太多了，幫我精減所有內容」</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div
+                class="p-3 bg-white border-t border-slate-100 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-10">
+                <div
+                    class="relative flex items-end bg-slate-50 border border-slate-200 rounded-xl focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all p-1">
+                    <textarea id="global-chat-input" rows="1"
+                        class="w-full bg-transparent px-3 py-2.5 text-sm focus:outline-none resize-none custom-scrollbar max-h-32 text-slate-700 placeholder-slate-400"
+                        placeholder="請輸入全域修改指令..."></textarea>
+                    <button id="global-chat-send"
+                        class="w-8 h-8 shrink-0 rounded-lg bg-brand-600 text-white flex items-center justify-center hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed m-1">
+                        <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button id="toggle-global-chat"
+            class="pointer-events-auto w-14 h-14 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-[0_8px_16px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.5)] hover:-translate-y-1 transition-all flex flex-col items-center justify-center border-[3px] border-white hidden relative group">
+            <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                </path>
+            </svg>
+            <span
+                class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full flex items-center justify-center animate-pulse hidden"
+                id="global-chat-badge"></span>
         </button>
     </div>
 

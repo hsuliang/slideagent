@@ -104,18 +104,49 @@ export const App = {
             });
         }
 
+        // Character IP Toggle
+        if (els.useCharacterIp) {
+            els.useCharacterIp.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                SlideAgentState.useCharacterIp = isChecked;
+                
+                // Toggle Container
+                const container = document.getElementById('character-ip-input-container');
+                if (container) container.classList.toggle('hidden', !isChecked);
+
+                if (isChecked) {
+                    // Mutual Exclusion: Turn off Logo
+                    SlideAgentState.useLogo = false;
+                    localStorage.setItem('slideAgent_useLogo', 'false');
+                    if (els.useLogo) {
+                        els.useLogo.checked = false;
+                        const logoContainer = document.getElementById('logo-input-container');
+                        if (logoContainer) logoContainer.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
         // Logo Toggle & Input
         if (els.useLogo) {
             els.useLogo.addEventListener('change', (e) => {
-                SlideAgentState.useLogo = e.target.checked;
-                localStorage.setItem('slideAgent_useLogo', e.target.checked);
-            });
-        }
-        if (els.logoName) {
-            els.logoName.addEventListener('input', (e) => {
-                const val = e.target.value.trim();
-                SlideAgentState.logoName = val;
-                localStorage.setItem('slideAgent_logoName', val);
+                const isChecked = e.target.checked;
+                SlideAgentState.useLogo = isChecked;
+                localStorage.setItem('slideAgent_useLogo', isChecked);
+
+                // Toggle Container
+                const container = document.getElementById('logo-input-container');
+                if (container) container.classList.toggle('hidden', !isChecked);
+
+                if (isChecked) {
+                    // Mutual Exclusion: Turn off Character IP
+                    SlideAgentState.useCharacterIp = false;
+                    if (els.useCharacterIp) {
+                        els.useCharacterIp.checked = false;
+                        const ipContainer = document.getElementById('character-ip-input-container');
+                        if (ipContainer) ipContainer.classList.add('hidden');
+                    }
+                }
             });
         }
 
@@ -573,7 +604,5 @@ export const App = {
     }
 };
 
-// Security feature: Clear API keys when the user closes the tab
-window.addEventListener('beforeunload', () => {
-    Data.clearApiKeys(false);
-});
+// Security feature: API keys are now only cleared by the 2-hour timeout in Data.init/saveApiKeys
+// to provide a better user experience across refreshes.

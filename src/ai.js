@@ -54,6 +54,9 @@ export const AI = {
       const fileData = await FileHandler.readFiles(files);
       result = await this.generateWithGemini(params, fileData);
 
+      // Clean up temp scraped style if desired (optional)
+      // SlideAgentState.currentScrapedStyle = null; 
+
 
       // Store metadata for downloads
       if (result.filename) {
@@ -69,8 +72,8 @@ export const AI = {
       if (error.name === 'AbortError') {
         UI.showToast('已取消生成', 'info');
       } else {
-        console.error(error);
-        UI.showToast(error.message || '生成失敗，請重試', 'error');
+        console.error("Agent Error:", error);
+        UI.handleSmartError(error);
       }
     } finally {
       SlideAgentState.isGenerating = false;
@@ -85,7 +88,7 @@ export const AI = {
   },
 
   async refineSelectedText(selectedText, actionType) {
-    if (!SlideAgentState.apiKeys.length > 0) {
+    if (SlideAgentState.apiKeys.length === 0) {
       UI.showToast("請先設定 Gemini API Key", "error");
       UI.switchTab('settings');
       return;
@@ -157,10 +160,43 @@ export const AI = {
       }
     } catch (err) {
       console.error("Selection Refine Error:", err);
-      UI.showToast(`微調失敗: ${err.message}`, "error");
+      UI.handleSmartError(err);
     } finally {
       UI.setSelectionToolbarLoading(false);
     }
+  },
+
+  async refineEntirePresentation(userPrompt, currentYamlData) {
+    const systemPrompt = `你是一位專業的簡報架構師與內容優化專家。
+任務：使用者對整份簡報提出了「全域修改指令」，請根據此指令，重新調整並優化整份簡報的內容。
+
+【使用者指令】
+${userPrompt}
+
+【目前的簡報 JSON 資料】
+${JSON.stringify(currentYamlData, null, 2)}
+
+請嚴格遵守以下規則：
+1. 必須完整回傳所有投影片（除非指令要求刪減），包含每一頁的 title、content、speaker_notes 以及 visual_description。
+2. 保持原有的 JSON 欄位結構（包含 slides 陣列）。若原資料包含 global_visual_style 也請保留或依指令更新。
+3. 根據使用者的指令，調整對應的內容（例如：語氣、字數、難度、重點增減、視覺風格等）。
+4. [重要] 您回傳的結果必須與原先設定的格式完全一致，且只回傳純 JSON 字串，不可包含 markdown 代碼區塊 (\`\`\`json) 等標記，直接輸出 JSON 物件。`;
+
+    console.log("Global Refine Request...");
+
+    // Call Gemini API (using standard model without media constraint)
+    const responseText = await this.generateWithGeminiRaw([{ text: systemPrompt }]);
+    
+    // Parse the JSON
+    let cleanJsonString = responseText.replace(/```json\n?|\n?```/g, '').trim();
+    // Sometimes there might be a prefix
+    if (!cleanJsonString.startsWith('{')) {
+       cleanJsonString = cleanJsonString.substring(cleanJsonString.indexOf('{'));
+    }
+    if (!cleanJsonString.endsWith('}')) {
+       cleanJsonString = cleanJsonString.substring(0, cleanJsonString.lastIndexOf('}') + 1);
+    }
+    return JSON.parse(cleanJsonString);
   },
 
   async regenerateSingleSlide() {
@@ -280,7 +316,7 @@ RULES:
 
     } catch (err) {
       console.error("Magic Wand Error:", err);
-      UI.showToast(`魔法失敗: ${err.message}`, "error");
+      UI.handleSmartError(err);
     } finally {
       UI.setMagicWandLoading(false);
     }
@@ -448,9 +484,18 @@ You must strictly follow this structure.
 `;
     } else {
       // --- STANDARD AI GENERATION MODE ---
+      const brandPrompt = `
+      [BRAND ASSETS]
+      - Brand Voice: ${SlideAgentState.brandVoice || "Professional & Balanced"}
+      - Use Logo: ${SlideAgentState.useLogo ? "YES (" + SlideAgentState.logoName + ")" : "NO"}
+      - Use Character IP: ${SlideAgentState.useCharacterIp ? "YES (" + SlideAgentState.characterIpName + ")" : "NO"}
+      `;
+
       systemPrompt = `
 You are an expert presentation architect (SlideAgent V10).
 Action: Generate a "Construction Blueprint" JSON for a presentation.
+
+${brandPrompt}
 
 **Context:**
 - **Speaker Persona**: ${personaContext}
@@ -572,136 +617,125 @@ ${pageDisciplineRule}
     });
 
     const apiKeys = [...SlideAgentState.apiKeys]; // Clone
-    const models = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     let lastError;
 
-    // Random Logic: Shuffle the keys first
-    for (let i = apiKeys.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [apiKeys[i], apiKeys[j]] = [apiKeys[j], apiKeys[i]];
-    }
-
     for (const apiKey of apiKeys) {
-      for (const model of models) {
-        if (SlideAgentState.abortController.signal.aborted) break;
+      const model = 'gemini-2.5-flash';
+      if (SlideAgentState.abortController?.signal?.aborted) break;
 
-        try {
-          console.log(`Trying Key: ...${apiKey.slice(-4)} | Model: ${model}`);
+      try {
+        console.log(`Trying Key: ...${apiKey.slice(-4)} | Model: ${model}`);
 
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            contents: [{ parts: parts }],
+            generationConfig: {
+              response_mime_type: "application/json",
+              temperature: 0.7 + Math.random() * 0.2
+            }
+          }),
+          signal: SlideAgentState.abortController?.signal
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const errorMsg = errData.error?.message || response.statusText;
+          if (response.status === 400 && (errorMsg.includes('API key') || errorMsg.includes('key not valid'))) {
+            throw new Error(`INVALID_KEY: ${errorMsg}`);
+          }
+          if (response.status === 429) {
+            throw new Error(`QUOTA_EXCEEDED: ${errorMsg}`);
+          }
+          throw new Error(`MODEL_ERROR: ${errorMsg}`);
+        }
+
+        const responseData = await response.json();
+        let rawText = '';
+        if (responseData.candidates && responseData.candidates.length > 0) {
+          rawText = responseData.candidates[0].content.parts[0].text;
+        } else {
+          throw new Error("AI API failed to return any valid candidates.");
+        }
+
+        const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
+        let jsonData = JSON.parse(jsonStr);
+
+        // NUCLEAR FALLBACK: Enforce Title Integrity Programmatically
+        if (jsonData.presentation_data && jsonData.presentation_data.slides) {
+          jsonData.presentation_data.slides.forEach((slide, idx) => {
+            if (slide.type === 'content_page' && slide.content) {
+              if (!slide.content.title || slide.content.title.includes("EXTRACTED TITLE") || slide.content.title.trim() === "") {
+                if (slide.content.key_points && slide.content.key_points.length > 0) {
+                  slide.content.title = slide.content.key_points.shift();
+                } else {
+                  slide.content.title = `Slide ${idx + 1} `;
+                }
+              }
+            }
+          });
+        }
+
+        // DEEP OPTIMIZATION PASS (Self-Correction)
+        if (params.deepOptimization) {
+          UI.setLoading(true, "AI 深度優化中...", "正在進行邏輯校驗與文字潤飾");
+          console.log("Starting Deep Optimization Pass...");
+
+          const optimizationPrompt = `
+You are a master presentation coach. Review the following JSON outline for a presentation.
+Your Task:
+1. Enhance clarity, impact, and logical flow of the 'title' and 'key_points'.
+2. Make the language more engaging and professional according to the Speaker Persona: ${personaContext} and Target Stage: ${stageContext}.
+3. Fix any structural inconsistencies.
+4. YOU MUST RETURN THE EXACT SAME JSON STRUCTURE. DO NOT ADD OR REMOVE SLIDES. DO NOT CHANGE THE KEYS. Just optimize the text inside the structure.
+
+JSON Outline to optimize:
+${JSON.stringify(jsonData, null, 2)}
+`;
+
+          const optResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              system_instruction: {
-                parts: [{ text: systemPrompt }]
-              },
-              contents: [{ parts: parts }],
+              contents: [{ parts: [{ text: optimizationPrompt }] }],
               generationConfig: {
                 response_mime_type: "application/json",
-                temperature: 0.7 + Math.random() * 0.2
+                temperature: 0.4
               }
             }),
-            signal: SlideAgentState.abortController.signal
+            signal: SlideAgentState.abortController?.signal
           });
 
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            const errorMsg = errData.error?.message || response.statusText;
-            if (response.status === 400 && (errorMsg.includes('API key') || errorMsg.includes('key not valid'))) {
-              throw new Error(`INVALID_KEY: ${errorMsg}`);
+          if (optResponse.ok) {
+            const optData = await optResponse.json();
+            if (optData.candidates && optData.candidates.length > 0) {
+              const optRawText = optData.candidates[0].content.parts[0].text;
+              const optJsonStr = optRawText.replace(/^```json\s*|\s*```$/g, '').trim();
+              try {
+                jsonData = JSON.parse(optJsonStr);
+                console.log("Deep Optimization Pass completed successfully.");
+              } catch (e) {
+                console.warn("Failed to parse optimized JSON, falling back to original.", e);
+              }
             }
-            if (response.status === 429) {
-              throw new Error(`QUOTA_EXCEEDED: ${errorMsg}`);
-            }
-            throw new Error(`MODEL_ERROR: ${errorMsg}`);
-          }
-
-          const responseData = await response.json();
-          let rawText = '';
-          if (responseData.candidates && responseData.candidates.length > 0) {
-            rawText = responseData.candidates[0].content.parts[0].text;
           } else {
-            throw new Error("AI API failed to return any valid candidates.");
+            console.warn("Deep Optimization API call failed. Falling back to original.");
           }
+        }
 
-          const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
-          let jsonData = JSON.parse(jsonStr);
+        return this.convertDataToArtifacts(jsonData);
 
-          // NUCLEAR FALLBACK: Enforce Title Integrity Programmatically
-          if (jsonData.presentation_data && jsonData.presentation_data.slides) {
-            jsonData.presentation_data.slides.forEach((slide, idx) => {
-              if (slide.type === 'content_page' && slide.content) {
-                // If title is missing, empty, or placeholder, try to rescue it
-                if (!slide.content.title || slide.content.title.includes("EXTRACTED TITLE") || slide.content.title.trim() === "") {
-                  // Strategy: Grab first key point or use default
-                  if (slide.content.key_points && slide.content.key_points.length > 0) {
-                    slide.content.title = slide.content.key_points.shift();
-                  } else {
-                    slide.content.title = `Slide ${idx + 1} `;
-                  }
-                }
-              }
-            });
-          }
+      } catch (e) {
+        lastError = e;
+        console.warn(`Failed: ${model} - ${e.message}`);
+        if (e.name === 'AbortError') throw e;
 
-          // DEEP OPTIMIZATION PASS (Self-Correction)
-          if (params.deepOptimization) {
-            UI.setLoading(true, "AI 深度優化中...", "正在進行邏輯校驗與文字潤飾");
-            console.log("Starting Deep Optimization Pass...");
-
-            const optimizationPrompt = `
-You are a master presentation coach.Review the following JSON outline for a presentation.
-Your Task:
-                      1. Enhance clarity, impact, and logical flow of the 'title' and 'key_points'.
-2. Make the language more engaging and professional according to the Speaker Persona: ${personaContext} and Target Stage: ${stageContext}.
-3. Fix any structural inconsistencies.
-4. YOU MUST RETURN THE EXACT SAME JSON STRUCTURE.DO NOT ADD OR REMOVE SLIDES.DO NOT CHANGE THE KEYS.Just optimize the text inside the structure.
-
-JSON Outline to optimize:
-    ${JSON.stringify(jsonData, null, 2)}
-`;
-
-            const optResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: optimizationPrompt }] }],
-                generationConfig: {
-                  response_mime_type: "application/json",
-                  temperature: 0.4
-                }
-              }),
-              signal: SlideAgentState.abortController.signal
-            });
-
-            if (optResponse.ok) {
-              const optData = await optResponse.json();
-              if (optData.candidates && optData.candidates.length > 0) {
-                const optRawText = optData.candidates[0].content.parts[0].text;
-                const optJsonStr = optRawText.replace(/^```json\s*|\s*```$/g, '').trim();
-                try {
-                  jsonData = JSON.parse(optJsonStr);
-                  console.log("Deep Optimization Pass completed successfully.");
-                } catch (e) {
-                  console.warn("Failed to parse optimized JSON, falling back to original.", e);
-                }
-              }
-            } else {
-              console.warn("Deep Optimization API call failed. Falling back to original.", await optResponse.text());
-            }
-          }
-
-          return this.convertDataToArtifacts(jsonData);
-
-        } catch (e) {
-          lastError = e;
-          console.warn(`Failed: ${model} - ${e.message}`);
-          if (e.name === 'AbortError') throw e;
-
-          // If Key is invalid or Quota exceeded, break inner model loop to force next KEY
-          if (e.message.startsWith('INVALID_KEY') || e.message.startsWith('QUOTA_EXCEEDED')) {
-            break; // Breaks model loop, continues outer key loop
-          }
+        if (e.message.startsWith('INVALID_KEY') || e.message.startsWith('QUOTA_EXCEEDED')) {
+          continue; 
         }
       }
     }
@@ -815,5 +849,150 @@ JSON Outline to optimize:
       yaml: "(系統將自動同步...)",
       filename: data.suggested_filename
     };
+  },
+
+  /**
+   * Style Scraper AI Logic (Enhanced 4.1)
+   */
+  async analyzeStyleFromUrl(url) {
+    if (!url) return null;
+    
+    UI.setLoading(true, "正在分析美學連結...", "AI 正在進行連結逆向美學深度掃描");
+    
+    try {
+      // Robust prompting with clearer failover
+      const prompt = `
+        你是一個資深前瞻美學分析師。請針對以下連結進行視覺設計「逆向工程」分析。
+        連結：${url}
+        
+        請根據網域品牌特徵或連結中蘊含的美學線索，推導出適配的簡報視覺參數。
+        請輸出一個包含以下參數的 JSON 物件：
+        
+        1. primaryColor: 主色 (HEX)
+        2. secondaryColor: 輔助色 (HEX)
+        3. fontVibe: 字體氛圍 (如: 現代無襯線, 報紙排版感, 未來主義風)
+        4. backgroundColor: 背景建色 (HEX)
+        5. styleDescriptor: 給生成 AI 的風格詳細描述 (包含佈局節奏、光影感、邊框特徵等)
+        
+        請僅輸出 JSON 回覆。若該網域未知，請基於連結關鍵字推測一個最有質感的風格。
+      `;
+
+      const response = await this.generateWithGeminiRaw([{ text: prompt }], "application/json");
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+          const styleData = JSON.parse(jsonMatch[0]);
+          SlideAgentState.currentScrapedStyle = styleData;
+          return styleData;
+      }
+      throw new Error("AI failed to extract aesthetic JSON from URL analysis.");
+    } catch (error) {
+      console.error("Scrape URL Error:", error);
+      throw error;
+    } finally {
+      UI.setLoading(false);
+    }
+  },
+
+  /**
+   * Image-based Style Scraper (New 4.1 Vision Logic)
+   */
+  async analyzeStyleFromImage(imageBase64) {
+    if (!imageBase64) return null;
+
+    UI.setLoading(true, "正在解析圖片美學...", "AI 正在從圖片中提取色彩分佈與排版節奏");
+
+    try {
+      const prompt = `你是一個資深美學總監。請分析這張圖片的視覺特徵。
+      請識別其：
+      1. 配色方案 (HEX)
+      2. 畫風/材質/光影特有氛圍
+      3. 字體建議類型
+      
+      請輸出一個包含以下參數的 JSON 物件：
+      {
+        "primaryColor": "HEX",
+        "secondaryColor": "HEX",
+        "fontVibe": "描述",
+        "backgroundColor": "HEX",
+        "styleDescriptor": "給 AI 的視覺生成咒語 (詳細)"
+      }
+      請僅輸出 JSON。`;
+
+      const mimeMatch = imageBase64.match(/^data:([^;]+);/);
+      const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+      
+      const parts = [
+        { text: prompt },
+        { inlineData: { mimeType: mimeType, data: imageBase64.split(',')[1] } }
+      ];
+
+      // Use Gemini 1.5 Pro or Flash (Vision enabled)
+      const response = await this.generateWithGeminiRaw(parts, "application/json");
+      const jsonStr = response.replace(/^```json\s*|\s*```$/g, '').trim();
+      const styleData = JSON.parse(jsonStr);
+      
+      SlideAgentState.currentScrapedStyle = styleData;
+      return styleData;
+    } catch (error) {
+      console.error("Scrape Image Error:", error);
+      throw error;
+    } finally {
+      UI.setLoading(false);
+    }
+  },
+
+  /**
+   * Helper for generic JSON generation
+   */
+  async generateWithGeminiRaw(parts, mimeType = "text/plain") {
+    let apiKeys = [...SlideAgentState.apiKeys];
+    
+    // Auto-recovery: If memory state is empty, try to reload from localStorage
+    if (apiKeys.length === 0) {
+      const stored = localStorage.getItem('slideAgent_apiKeys');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            apiKeys = parsed;
+            SlideAgentState.apiKeys = parsed; // Sync back to singleton
+            console.log("AI Module: Successfully recovered API Keys from localStorage.");
+          }
+        } catch (e) {
+          console.warn("AI Module: Failed to recover keys from localStorage", e);
+        }
+      }
+    }
+
+    if (apiKeys.length === 0) throw new Error("API Key Missing");
+
+    let lastError;
+    for (const apiKey of apiKeys) {
+      const model = 'gemini-2.5-flash';
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: parts }],
+            generationConfig: { response_mime_type: mimeType }
+          }),
+          signal: SlideAgentState.abortController?.signal
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error?.message || response.statusText);
+        }
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+      } catch (e) {
+        lastError = e;
+        console.warn(`Raw call failed for gemini-2.5-flash: ${e.message}`);
+        if (e.name === 'AbortError') throw e;
+      }
+    }
+    throw lastError || new Error("AI Request Failed after multiple attempts");
   }
 };

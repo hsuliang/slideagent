@@ -11,6 +11,10 @@ export const SlideAgentState = {
     generationMode: 'auto', // 'auto' | 'direct'
     useLogo: false,
     logoName: '', // Used for global logo/watermark injection
+    useCharacterIp: false, // New 4.1 Personification IP
+    characterIpName: '', // Describe your character IP
+    brandVoice: '', // New 4.0 Brand Voice setting
+    currentScrapedStyle: null, // Cache for dynamically scraped style parameters
 
     // AI Visual Keyword Mapping (StyleMap)
     StyleMap: {
