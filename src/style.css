@@ -112,6 +112,24 @@
     color: #92400e; 
 }
 
-.toast h4 {
-    margin-bottom: 0.125rem;
+/* Mindmap Logic Improvements */
+.mindmap-node {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
 }
+.mindmap-node:hover {
+    border-left-color: var(--color-brand-500);
+    padding-left: 1rem;
+}
+
+.density-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+}
+
+.density-rich { background-color: #22c55e; }
+.density-moderate { background-color: #eab308; }
+.density-thin { background-color: #ef4444; }

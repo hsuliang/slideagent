@@ -321,6 +321,12 @@ export const Data = {
 
         // --- UPDATE STATE ---
         SlideAgentState.yamlGenerated = true;
+        try {
+            // Important: Sync the structured object back to state for Mindmap/Visual features
+            SlideAgentState.yamlData = window.jsyaml.load(finalYaml).presentation_data;
+        } catch (e) {
+            console.error("YAML Sync State Error:", e);
+        }
     },
 
     generateMarkdownValues() {
