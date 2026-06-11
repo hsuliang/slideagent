@@ -48,10 +48,63 @@ export const App = {
         });
 
         // API Key Saving
-        if (els.saveKeyBtn) els.saveKeyBtn.addEventListener('click', () => {
-            Data.saveApiKeys(els.apiKeyInput.value);
-            UI.toggleSettings(false);
-        });
+        if (els.saveKeyBtn) {
+            els.saveKeyBtn.addEventListener('click', async () => {
+                const text = els.apiKeyInput.value;
+                const keys = text.split('\n').map(k => k.trim()).filter(k => k);
+
+                if (keys.length === 0) {
+                    Data.saveApiKeys('');
+                    UI.toggleSettings(false);
+                    return;
+                }
+
+                els.saveKeyBtn.disabled = true;
+                const originalText = els.saveKeyBtn.textContent;
+                els.saveKeyBtn.textContent = '驗證中...';
+
+                try {
+                    const validationPromises = keys.map(async (key) => {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}`);
+                        }
+                        const data = await response.json();
+                        if (!data.models) {
+                            throw new Error("Invalid response format");
+                        }
+                        return key;
+                    });
+
+                    const results = await Promise.allSettled(validationPromises);
+                    const validKeys = results
+                        .filter(r => r.status === 'fulfilled')
+                        .map(r => r.value);
+
+                    if (validKeys.length === 0) {
+                        UI.showToast('金鑰無效或額度耗盡', 'error');
+                        return; // Block saving, do not close modal
+                    }
+
+                    // Save keys and update text field
+                    Data.saveApiKeys(validKeys.join('\n'));
+                    els.apiKeyInput.value = validKeys.join('\n');
+
+                    const invalidCount = keys.length - validKeys.length;
+                    if (invalidCount > 0) {
+                        UI.showToast(`已儲存 ${validKeys.length} 組有效金鑰，排除 ${invalidCount} 組無效金鑰（金鑰無效或額度耗盡）`, 'warning');
+                    }
+
+                    UI.toggleSettings(false);
+                } catch (err) {
+                    console.error("API Key validation error:", err);
+                    UI.showToast('驗證過程中發生錯誤，請稍後再試', 'error');
+                } finally {
+                    els.saveKeyBtn.disabled = false;
+                    els.saveKeyBtn.textContent = originalText;
+                }
+            });
+        }
 
         // API Key Visibility Toggle
         if (els.toggleKeyBtn) {

@@ -2,12 +2,58 @@
  * SlideAgent - AI Module
  * Handles Google Gemini API Interaction
  */
-import { SlideAgentState } from './config.js';
+import { SlideAgentState, FALLBACK_MODEL } from './config.js';
 import { UI } from './ui.js';
 import { Data } from './data.js';
 import { FileHandler } from './files.js';
 
 export const AI = {
+
+  async resolveLatestFlashModel(apiKey) {
+    if (!apiKey) {
+      return FALLBACK_MODEL;
+    }
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!data.models || !Array.isArray(data.models)) {
+        throw new Error('Invalid response format');
+      }
+
+      // Filter: supports generateContent, name contains 'flash', and name excludes 'preview' and 'lite'
+      const flashModels = data.models.filter(m => {
+        const name = m.name || '';
+        const nameLower = name.toLowerCase();
+        const hasGenerateContent = m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent');
+        return hasGenerateContent && 
+               nameLower.includes('flash') && 
+               !nameLower.includes('preview') && 
+               !nameLower.includes('lite');
+      });
+
+      if (flashModels.length === 0) {
+        return FALLBACK_MODEL;
+      }
+
+      // Extract suffix and sort descending by version number
+      const suffixes = flashModels.map(m => {
+        const parts = m.name.split('/');
+        return parts[parts.length - 1];
+      });
+
+      suffixes.sort((a, b) => {
+        return b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      return suffixes[0] || FALLBACK_MODEL;
+    } catch (e) {
+      console.warn("Failed to resolve latest flash model, using fallback:", e);
+      return FALLBACK_MODEL;
+    }
+  },
 
   async startGeneration() {
     const { identity, stage, pages, style, mainInput } = UI.elements;
@@ -121,7 +167,7 @@ export const AI = {
 
     try {
       const apiKey = SlideAgentState.apiKeys[0];
-      const model = 'gemini-2.5-flash';
+      const model = await this.resolveLatestFlashModel(apiKey);
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
@@ -262,7 +308,7 @@ RULES:
 `;
 
       const apiKey = SlideAgentState.apiKeys[0];
-      const model = 'gemini-2.5-flash';
+      const model = await this.resolveLatestFlashModel(apiKey);
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
@@ -620,10 +666,10 @@ ${pageDisciplineRule}
     let lastError;
 
     for (const apiKey of apiKeys) {
-      const model = 'gemini-2.5-flash';
       if (SlideAgentState.abortController?.signal?.aborted) break;
 
       try {
+        const model = await this.resolveLatestFlashModel(apiKey);
         console.log(`Trying Key: ...${apiKey.slice(-4)} | Model: ${model}`);
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
@@ -968,8 +1014,8 @@ ${JSON.stringify(jsonData, null, 2)}
 
     let lastError;
     for (const apiKey of apiKeys) {
-      const model = 'gemini-2.5-flash';
       try {
+        const model = await this.resolveLatestFlashModel(apiKey);
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -989,7 +1035,7 @@ ${JSON.stringify(jsonData, null, 2)}
         return data.candidates[0].content.parts[0].text;
       } catch (e) {
         lastError = e;
-        console.warn(`Raw call failed for gemini-2.5-flash: ${e.message}`);
+        console.warn(`Raw call failed: ${e.message}`);
         if (e.name === 'AbortError') throw e;
       }
     }

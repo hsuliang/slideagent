@@ -1,6 +1,8 @@
 /**
  * SlideAgent - Config & State
  */
+export const FALLBACK_MODEL = 'gemini-1.5-flash';
+
 export const SlideAgentState = {
     apiKeys: [],
     uploadedFiles: [],
