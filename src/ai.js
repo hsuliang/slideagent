@@ -38,17 +38,28 @@ export const AI = {
         return FALLBACK_MODEL;
       }
 
-      // Extract suffix and sort descending by version number
-      const suffixes = flashModels.map(m => {
+      // Extract version number and sort descending
+      const parsedModels = flashModels.map(m => {
         const parts = m.name.split('/');
-        return parts[parts.length - 1];
+        const suffix = parts[parts.length - 1];
+        
+        // Extract version number (e.g. from 'gemini-2.5-flash-latest' to match '2.5')
+        const versionMatch = suffix.match(/gemini-(\d+\.?\d*)-flash/i);
+        const versionNum = versionMatch ? parseFloat(versionMatch[1]) : 0;
+        
+        return { suffix, versionNum };
       });
 
-      suffixes.sort((a, b) => {
-        return b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' });
+      // Sort descending by version number
+      parsedModels.sort((a, b) => {
+        if (b.versionNum !== a.versionNum) {
+          return b.versionNum - a.versionNum;
+        }
+        return b.suffix.localeCompare(a.suffix, undefined, { numeric: true, sensitivity: 'base' });
       });
 
-      return suffixes[0] || FALLBACK_MODEL;
+      console.log("Resolved Flash models order:", parsedModels);
+      return parsedModels[0].suffix || FALLBACK_MODEL;
     } catch (e) {
       console.warn("Failed to resolve latest flash model, using fallback:", e);
       return FALLBACK_MODEL;
