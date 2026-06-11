@@ -189,9 +189,9 @@ export const AI = {
 
     try {
       const apiKey = SlideAgentState.apiKeys[0];
-      const model = await this.resolveLatestFlashModel(apiKey);
+      let model = await this.resolveLatestFlashModel(apiKey);
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -205,8 +205,32 @@ export const AI = {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error?.message || 'API 請求失敗');
+        const errData = await response.json().catch(() => ({}));
+        const errorMsg = errData.error?.message || response.statusText;
+
+        if (model !== FALLBACK_MODEL) {
+          console.warn(`Refine model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
+          model = FALLBACK_MODEL;
+          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: selectedText }] }],
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              generationConfig: {
+                temperature: 0.5,
+                responseMimeType: "text/plain",
+              }
+            })
+          });
+
+          if (!response.ok) {
+            const errDataFallback = await response.json().catch(() => ({}));
+            throw new Error(errDataFallback.error?.message || response.statusText);
+          }
+        } else {
+          throw new Error(errorMsg);
+        }
       }
 
       const data = await response.json();
@@ -330,9 +354,9 @@ RULES:
 `;
 
       const apiKey = SlideAgentState.apiKeys[0];
-      const model = await this.resolveLatestFlashModel(apiKey);
+      let model = await this.resolveLatestFlashModel(apiKey);
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -346,7 +370,32 @@ RULES:
       });
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errData = await response.json().catch(() => ({}));
+        const errorMsg = errData.error?.message || response.statusText;
+
+        if (model !== FALLBACK_MODEL) {
+          console.warn(`Magic wand model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
+          model = FALLBACK_MODEL;
+          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ parts: [{ text: "Please generate the revised slide JSON." }] }],
+              generationConfig: {
+                response_mime_type: "application/json",
+                temperature: 0.7
+              }
+            })
+          });
+
+          if (!response.ok) {
+            const errDataFallback = await response.json().catch(() => ({}));
+            throw new Error(errDataFallback.error?.message || response.statusText);
+          }
+        } else {
+          throw new Error(errorMsg);
+        }
       }
 
       const data = await response.json();
@@ -690,11 +739,12 @@ ${pageDisciplineRule}
     for (const apiKey of apiKeys) {
       if (SlideAgentState.abortController?.signal?.aborted) break;
 
+      let model = FALLBACK_MODEL;
       try {
-        const model = await this.resolveLatestFlashModel(apiKey);
+        model = await this.resolveLatestFlashModel(apiKey);
         console.log(`Trying Key: ...${apiKey.slice(-4)} | Model: ${model}`);
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -719,7 +769,40 @@ ${pageDisciplineRule}
           if (response.status === 429) {
             throw new Error(`QUOTA_EXCEEDED: ${errorMsg}`);
           }
-          throw new Error(`MODEL_ERROR: ${errorMsg}`);
+
+          if (model !== FALLBACK_MODEL) {
+            console.warn(`Model ${model} failed with status ${response.status} (${errorMsg}). Retrying with fallback model ${FALLBACK_MODEL}...`);
+            model = FALLBACK_MODEL;
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: {
+                  parts: [{ text: systemPrompt }]
+                },
+                contents: [{ parts: parts }],
+                generationConfig: {
+                  response_mime_type: "application/json",
+                  temperature: 0.7 + Math.random() * 0.2
+                }
+              }),
+              signal: SlideAgentState.abortController?.signal
+            });
+
+            if (!response.ok) {
+              const errDataFallback = await response.json().catch(() => ({}));
+              const errorMsgFallback = errDataFallback.error?.message || response.statusText;
+              if (response.status === 400 && (errorMsgFallback.includes('API key') || errorMsgFallback.includes('key not valid'))) {
+                throw new Error(`INVALID_KEY: ${errorMsgFallback}`);
+              }
+              if (response.status === 429) {
+                throw new Error(`QUOTA_EXCEEDED: ${errorMsgFallback}`);
+              }
+              throw new Error(`MODEL_ERROR: ${errorMsgFallback}`);
+            }
+          } else {
+            throw new Error(`MODEL_ERROR: ${errorMsg}`);
+          }
         }
 
         const responseData = await response.json();
@@ -1036,9 +1119,10 @@ ${JSON.stringify(jsonData, null, 2)}
 
     let lastError;
     for (const apiKey of apiKeys) {
+      let model = FALLBACK_MODEL;
       try {
-        const model = await this.resolveLatestFlashModel(apiKey);
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        model = await this.resolveLatestFlashModel(apiKey);
+        let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1050,7 +1134,28 @@ ${JSON.stringify(jsonData, null, 2)}
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error?.message || response.statusText);
+          const errorMsg = errData.error?.message || response.statusText;
+
+          if (model !== FALLBACK_MODEL) {
+            console.warn(`Raw call model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
+            model = FALLBACK_MODEL;
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: parts }],
+                generationConfig: { response_mime_type: mimeType }
+              }),
+              signal: SlideAgentState.abortController?.signal
+            });
+
+            if (!response.ok) {
+              const errDataFallback = await response.json().catch(() => ({}));
+              throw new Error(errDataFallback.error?.message || response.statusText);
+            }
+          } else {
+            throw new Error(errorMsg);
+          }
         }
 
         const data = await response.json();
