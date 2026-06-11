@@ -11,7 +11,7 @@ const modelCache = new Map();
 
 export const AI = {
 
-  async resolveLatestFlashModel(apiKey) {
+  async resolveLatestFlashModel(apiKey, throwOnError = false) {
     if (!apiKey) {
       return FALLBACK_MODEL;
     }
@@ -72,6 +72,7 @@ export const AI = {
       return resolvedModel;
     } catch (e) {
       console.warn("Failed to resolve latest flash model, using fallback:", e);
+      if (throwOnError) throw e;
       return FALLBACK_MODEL;
     }
   },

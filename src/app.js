@@ -35,6 +35,13 @@ export const App = {
             SlideAgentState.logoName = savedLogoName;
             if (UI.elements.logoName) UI.elements.logoName.value = savedLogoName;
         }
+
+        // Pre-resolve model names in the background for loaded keys
+        if (SlideAgentState.apiKeys && SlideAgentState.apiKeys.length > 0) {
+            SlideAgentState.apiKeys.forEach(key => {
+                AI.resolveLatestFlashModel(key).catch(() => {});
+            });
+        }
     },
 
     bindEvents() {
@@ -65,14 +72,7 @@ export const App = {
 
                 try {
                     const validationPromises = keys.map(async (key) => {
-                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-                        if (!response.ok) {
-                            throw new Error(`HTTP Error ${response.status}`);
-                        }
-                        const data = await response.json();
-                        if (!data.models) {
-                            throw new Error("Invalid response format");
-                        }
+                        await AI.resolveLatestFlashModel(key, true);
                         return key;
                     });
 
