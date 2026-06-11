@@ -96,6 +96,9 @@ export const UI = {
             statPages: document.getElementById('stat-pages'),
             statWords: document.getElementById('stat-words'),
             statTime: document.getElementById('stat-time'),
+            statModel: document.getElementById('stat-model'),
+            loaderModelInfo: document.getElementById('loader-model-info'),
+            loaderModelName: document.getElementById('loader-model-name'),
 
             // Containers
             toastContainer: document.getElementById('toast-container'),
@@ -632,6 +635,19 @@ export const UI = {
 
     loadingInterval: null,
 
+    updateLoaderModel(modelName) {
+        const info = this.elements.loaderModelInfo;
+        const name = this.elements.loaderModelName;
+        if (info && name) {
+            if (modelName) {
+                name.textContent = modelName;
+                info.classList.remove('hidden');
+            } else {
+                info.classList.add('hidden');
+            }
+        }
+    },
+
     setLoading(isLoading, mainText = '', subText = '') {
         const loader = this.elements.loader;
         const genBtn = this.elements.generateBtn;
@@ -679,6 +695,7 @@ export const UI = {
                 genBtn.disabled = false;
                 genBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
+            this.updateLoaderModel(null);
         }
     },
 

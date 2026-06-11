@@ -17,6 +17,7 @@ export const SlideAgentState = {
     characterIpName: '', // Describe your character IP
     brandVoice: '', // New 4.0 Brand Voice setting
     currentScrapedStyle: null, // Cache for dynamically scraped style parameters
+    lastUsedModel: null, // Track the successfully used model name
 
     // AI Visual Keyword Mapping (StyleMap)
     StyleMap: {

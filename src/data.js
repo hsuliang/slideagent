@@ -316,6 +316,9 @@ export const Data = {
             if (UI.elements.statPages) UI.elements.statPages.innerText = stats.pages;
             if (UI.elements.statWords) UI.elements.statWords.innerText = stats.words;
             if (UI.elements.statTime) UI.elements.statTime.innerText = stats.time;
+            if (UI.elements.statModel && SlideAgentState.lastUsedModel) {
+                UI.elements.statModel.innerText = SlideAgentState.lastUsedModel;
+            }
             UI.elements.statsDashboard.classList.remove('hidden');
         }
 

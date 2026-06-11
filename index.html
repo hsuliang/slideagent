@@ -751,6 +751,10 @@
                     </div>
                     <h3 class="text-xl font-bold text-slate-800 tracking-tight mb-2">AI 正在原子化您的教材...</h3>
                     <p class="text-slate-500 text-sm animate-pulse mb-6">正在進行深度語意分析與結構重組</p>
+                    <div id="loader-model-info" class="hidden text-xs bg-slate-50 border border-slate-200 text-slate-500 py-1.5 px-3 rounded-full mb-6 font-mono flex items-center justify-center gap-1.5 mx-auto">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>使用模型: </span><span id="loader-model-name" class="font-bold">gemini-1.5-flash</span>
+                    </div>
 
                     <button id="cancel-gen-btn"
                         class="px-5 py-2 rounded-full border border-slate-200 text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all text-sm font-medium">
@@ -986,10 +990,9 @@
                             <pre
                                 class="flex-1 p-4 overflow-auto custom-scrollbar"><code id="output-yaml" class="font-mono text-sm text-green-400"># 您的資料將在此生成...</code></pre>
 
-                            <!-- Talk-Time Estimator Dashboard (Hidden until generation) -->
                             <div id="stats-dashboard"
                                 class="hidden shrink-0 border-t border-slate-700 bg-slate-800 p-4 text-xs text-slate-300">
-                                <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="grid grid-cols-3 gap-4 text-center mb-3">
                                     <div>
                                         <p class="text-slate-500 mb-1">總頁數</p>
                                         <p class="text-lg font-bold text-white"><span id="stat-pages">0</span> 頁</p>
@@ -1002,6 +1005,9 @@
                                         <p class="text-slate-500 mb-1">預估演講時間 ⏱️</p>
                                         <p class="text-lg font-bold text-brand-400"><span id="stat-time">0</span> 分鐘</p>
                                     </div>
+                                </div>
+                                <div class="text-center text-slate-500 border-t border-slate-700/50 pt-2 font-mono text-[10px] flex items-center justify-center gap-1.5">
+                                    <span>🤖 生成模型: </span><span id="stat-model" class="text-slate-400 font-bold">gemini-1.5-flash</span>
                                 </div>
                             </div>
                         </div>

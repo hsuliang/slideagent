@@ -233,6 +233,7 @@ export const AI = {
           const data = await response.json();
           if (data.candidates && data.candidates[0].content.parts.length > 0) {
             newText = data.candidates[0].content.parts[0].text.trim();
+            SlideAgentState.lastUsedModel = model;
             break; // Success!
           } else {
              throw new Error("回傳格式異常或遭封鎖");
@@ -391,6 +392,7 @@ RULES:
             const rawText = data.candidates[0].content.parts[0].text;
             const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
             revisedSlideJson = JSON.parse(jsonStr);
+            SlideAgentState.lastUsedModel = model;
             break; // Success!
           } else {
             throw new Error("AI did not return any candidates.");
@@ -745,6 +747,7 @@ ${pageDisciplineRule}
       for (const model of models) {
         if (SlideAgentState.abortController?.signal?.aborted) break;
         console.log(`Attempting with model: ${model}`);
+        UI.updateLoaderModel(model);
 
         try {
           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
@@ -782,6 +785,9 @@ ${pageDisciplineRule}
           } else {
             throw new Error("AI API failed to return any valid candidates.");
           }
+
+          // Save the successfully used model name
+          SlideAgentState.lastUsedModel = model;
 
           const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
           let jsonData = JSON.parse(jsonStr);
@@ -1100,6 +1106,7 @@ ${JSON.stringify(jsonData, null, 2)}
 
       for (const model of models) {
         if (SlideAgentState.abortController?.signal?.aborted) break;
+        UI.updateLoaderModel(model);
         try {
           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
@@ -1117,6 +1124,7 @@ ${JSON.stringify(jsonData, null, 2)}
           }
 
           const data = await response.json();
+          SlideAgentState.lastUsedModel = model;
           return data.candidates[0].content.parts[0].text;
         } catch (e) {
           lastModelError = e;
