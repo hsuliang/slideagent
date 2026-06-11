@@ -11,9 +11,9 @@ const modelCache = new Map();
 
 export const AI = {
 
-  async resolveLatestFlashModel(apiKey, throwOnError = false) {
+  async resolveFlashModelsList(apiKey, throwOnError = false) {
     if (!apiKey) {
-      return FALLBACK_MODEL;
+      return [FALLBACK_MODEL];
     }
     
     // Check cache to avoid duplicate network requests
@@ -43,7 +43,7 @@ export const AI = {
       });
 
       if (flashModels.length === 0) {
-        return FALLBACK_MODEL;
+        return [FALLBACK_MODEL];
       }
 
       // Extract version number and sort descending
@@ -66,12 +66,28 @@ export const AI = {
         return b.suffix.localeCompare(a.suffix, undefined, { numeric: true, sensitivity: 'base' });
       });
 
-      console.log("Resolved Flash models order:", parsedModels);
-      const resolvedModel = parsedModels[0].suffix || FALLBACK_MODEL;
-      modelCache.set(apiKey, resolvedModel);
-      return resolvedModel;
+      const list = parsedModels.map(m => m.suffix).filter(m => m);
+      
+      // Ensure FALLBACK_MODEL is in the list
+      if (!list.includes(FALLBACK_MODEL)) {
+        list.push(FALLBACK_MODEL);
+      }
+
+      console.log("Resolved Flash models order:", list);
+      modelCache.set(apiKey, list);
+      return list;
     } catch (e) {
-      console.warn("Failed to resolve latest flash model, using fallback:", e);
+      console.warn("Failed to resolve flash models list, using fallback:", e);
+      if (throwOnError) throw e;
+      return [FALLBACK_MODEL];
+    }
+  },
+
+  async resolveLatestFlashModel(apiKey, throwOnError = false) {
+    try {
+      const list = await this.resolveFlashModelsList(apiKey, throwOnError);
+      return list[0] || FALLBACK_MODEL;
+    } catch (e) {
       if (throwOnError) throw e;
       return FALLBACK_MODEL;
     }
@@ -189,29 +205,14 @@ export const AI = {
 
     try {
       const apiKey = SlideAgentState.apiKeys[0];
-      let model = await this.resolveLatestFlashModel(apiKey);
+      const models = await this.resolveFlashModelsList(apiKey);
 
-      let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: selectedText }] }],
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: {
-            temperature: 0.5,
-            responseMimeType: "text/plain",
-          }
-        })
-      });
+      let newText = null;
+      let lastModelError;
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        const errorMsg = errData.error?.message || response.statusText;
-
-        if (model !== FALLBACK_MODEL) {
-          console.warn(`Refine model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
-          model = FALLBACK_MODEL;
-          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      for (const model of models) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -225,18 +226,24 @@ export const AI = {
           });
 
           if (!response.ok) {
-            const errDataFallback = await response.json().catch(() => ({}));
-            throw new Error(errDataFallback.error?.message || response.statusText);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || response.statusText);
           }
-        } else {
-          throw new Error(errorMsg);
+
+          const data = await response.json();
+          if (data.candidates && data.candidates[0].content.parts.length > 0) {
+            newText = data.candidates[0].content.parts[0].text.trim();
+            break; // Success!
+          } else {
+             throw new Error("回傳格式異常或遭封鎖");
+          }
+        } catch (e) {
+          lastModelError = e;
+          console.warn(`Model ${model} refine failed: ${e.message}`);
         }
       }
 
-      const data = await response.json();
-      if (data.candidates && data.candidates[0].content.parts.length > 0) {
-        const newText = data.candidates[0].content.parts[0].text.trim();
-        
+      if (newText !== null) {
         // Use UI method to safely replace text in DOM
         if (UI.replaceSelectedText(newText)) {
             // Trigger sync to YAML and history save
@@ -248,7 +255,7 @@ export const AI = {
             UI.showToast("無法替換文字，選取範圍可能已遺失", "warning");
         }
       } else {
-         throw new Error("回傳格式異常或遭封鎖");
+        throw lastModelError || new Error("所有可用模型皆無法微調文字");
       }
     } catch (err) {
       console.error("Selection Refine Error:", err);
@@ -354,29 +361,14 @@ RULES:
 `;
 
       const apiKey = SlideAgentState.apiKeys[0];
-      let model = await this.resolveLatestFlashModel(apiKey);
+      const models = await this.resolveFlashModelsList(apiKey);
 
-      let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ parts: [{ text: "Please generate the revised slide JSON." }] }],
-          generationConfig: {
-            response_mime_type: "application/json",
-            temperature: 0.7
-          }
-        })
-      });
+      let revisedSlideJson = null;
+      let lastModelError;
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        const errorMsg = errData.error?.message || response.statusText;
-
-        if (model !== FALLBACK_MODEL) {
-          console.warn(`Magic wand model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
-          model = FALLBACK_MODEL;
-          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      for (const model of models) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -390,19 +382,28 @@ RULES:
           });
 
           if (!response.ok) {
-            const errDataFallback = await response.json().catch(() => ({}));
-            throw new Error(errDataFallback.error?.message || response.statusText);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || response.statusText);
           }
-        } else {
-          throw new Error(errorMsg);
+
+          const data = await response.json();
+          if (data.candidates && data.candidates.length > 0) {
+            const rawText = data.candidates[0].content.parts[0].text;
+            const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
+            revisedSlideJson = JSON.parse(jsonStr);
+            break; // Success!
+          } else {
+            throw new Error("AI did not return any candidates.");
+          }
+        } catch (e) {
+          lastModelError = e;
+          console.warn(`Model ${model} slide regen failed: ${e.message}`);
         }
       }
 
-      const data = await response.json();
-      if (data.candidates && data.candidates.length > 0) {
-        const rawText = data.candidates[0].content.parts[0].text;
-        const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
-        const revisedSlideJson = JSON.parse(jsonStr);
+      if (!revisedSlideJson) {
+        throw lastModelError || new Error("所有可用模型皆無法重構投影片");
+      }
 
         // Generate HTML for just this one slide using the existing robust converter
         // We trick it by wrapping it in the expected root structure
@@ -427,9 +428,6 @@ RULES:
         } else {
           throw new Error("HTML generation failed for revised slide");
         }
-      } else {
-        throw new Error("AI did not return any candidates.");
-      }
 
     } catch (err) {
       console.error("Magic Wand Error:", err);
@@ -739,104 +737,76 @@ ${pageDisciplineRule}
     for (const apiKey of apiKeys) {
       if (SlideAgentState.abortController?.signal?.aborted) break;
 
-      let model = FALLBACK_MODEL;
-      try {
-        model = await this.resolveLatestFlashModel(apiKey);
-        console.log(`Trying Key: ...${apiKey.slice(-4)} | Model: ${model}`);
+      const models = await this.resolveFlashModelsList(apiKey);
+      console.log(`Trying Key: ...${apiKey.slice(-4)} | Resolved Models:`, models);
 
-        let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: systemPrompt }]
-            },
-            contents: [{ parts: parts }],
-            generationConfig: {
-              response_mime_type: "application/json",
-              temperature: 0.7 + Math.random() * 0.2
-            }
-          }),
-          signal: SlideAgentState.abortController?.signal
-        });
+      let lastModelError = null;
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const errorMsg = errData.error?.message || response.statusText;
-          if (response.status === 400 && (errorMsg.includes('API key') || errorMsg.includes('key not valid'))) {
-            throw new Error(`INVALID_KEY: ${errorMsg}`);
-          }
-          if (response.status === 429) {
-            throw new Error(`QUOTA_EXCEEDED: ${errorMsg}`);
-          }
+      for (const model of models) {
+        if (SlideAgentState.abortController?.signal?.aborted) break;
+        console.log(`Attempting with model: ${model}`);
 
-          if (model !== FALLBACK_MODEL) {
-            console.warn(`Model ${model} failed with status ${response.status} (${errorMsg}). Retrying with fallback model ${FALLBACK_MODEL}...`);
-            model = FALLBACK_MODEL;
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                system_instruction: {
-                  parts: [{ text: systemPrompt }]
-                },
-                contents: [{ parts: parts }],
-                generationConfig: {
-                  response_mime_type: "application/json",
-                  temperature: 0.7 + Math.random() * 0.2
-                }
-              }),
-              signal: SlideAgentState.abortController?.signal
-            });
-
-            if (!response.ok) {
-              const errDataFallback = await response.json().catch(() => ({}));
-              const errorMsgFallback = errDataFallback.error?.message || response.statusText;
-              if (response.status === 400 && (errorMsgFallback.includes('API key') || errorMsgFallback.includes('key not valid'))) {
-                throw new Error(`INVALID_KEY: ${errorMsgFallback}`);
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: systemPrompt }]
+              },
+              contents: [{ parts: parts }],
+              generationConfig: {
+                response_mime_type: "application/json",
+                temperature: 0.7 + Math.random() * 0.2
               }
-              if (response.status === 429) {
-                throw new Error(`QUOTA_EXCEEDED: ${errorMsgFallback}`);
-              }
-              throw new Error(`MODEL_ERROR: ${errorMsgFallback}`);
+            }),
+            signal: SlideAgentState.abortController?.signal
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            const errorMsg = errData.error?.message || response.statusText;
+            if (response.status === 400 && (errorMsg.includes('API key') || errorMsg.includes('key not valid'))) {
+              throw new Error(`INVALID_KEY: ${errorMsg}`);
             }
-          } else {
+            if (response.status === 429) {
+              throw new Error(`QUOTA_EXCEEDED: ${errorMsg}`);
+            }
             throw new Error(`MODEL_ERROR: ${errorMsg}`);
           }
-        }
 
-        const responseData = await response.json();
-        let rawText = '';
-        if (responseData.candidates && responseData.candidates.length > 0) {
-          rawText = responseData.candidates[0].content.parts[0].text;
-        } else {
-          throw new Error("AI API failed to return any valid candidates.");
-        }
+          const responseData = await response.json();
+          let rawText = '';
+          if (responseData.candidates && responseData.candidates.length > 0) {
+            rawText = responseData.candidates[0].content.parts[0].text;
+          } else {
+            throw new Error("AI API failed to return any valid candidates.");
+          }
 
-        const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
-        let jsonData = JSON.parse(jsonStr);
+          const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, '').trim();
+          let jsonData = JSON.parse(jsonStr);
 
-        // NUCLEAR FALLBACK: Enforce Title Integrity Programmatically
-        if (jsonData.presentation_data && jsonData.presentation_data.slides) {
-          jsonData.presentation_data.slides.forEach((slide, idx) => {
-            if (slide.type === 'content_page' && slide.content) {
-              if (!slide.content.title || slide.content.title.includes("EXTRACTED TITLE") || slide.content.title.trim() === "") {
-                if (slide.content.key_points && slide.content.key_points.length > 0) {
-                  slide.content.title = slide.content.key_points.shift();
-                } else {
-                  slide.content.title = `Slide ${idx + 1} `;
+          // NUCLEAR FALLBACK: Enforce Title Integrity Programmatically
+          if (jsonData.presentation_data && jsonData.presentation_data.slides) {
+            jsonData.presentation_data.slides.forEach((slide, idx) => {
+              if (slide.type === 'content_page' && slide.content) {
+                if (!slide.content.title || slide.content.title.includes("EXTRACTED TITLE") || slide.content.title.trim() === "") {
+                  if (slide.content.key_points && slide.content.key_points.length > 0) {
+                    slide.content.title = slide.content.key_points.shift();
+                  } else {
+                    slide.content.title = `Slide ${idx + 1} `;
+                  }
                 }
               }
-            }
-          });
-        }
+            });
+          }
 
-        // DEEP OPTIMIZATION PASS (Self-Correction)
-        if (params.deepOptimization) {
-          UI.setLoading(true, "AI 深度優化中...", "正在進行邏輯校驗與文字潤飾");
-          console.log("Starting Deep Optimization Pass...");
+          // DEEP OPTIMIZATION PASS (Self-Correction)
+          if (params.deepOptimization) {
+            UI.setLoading(true, "AI 深度優化中...", "正在進行邏輯校驗與文字潤飾");
+            console.log("Starting Deep Optimization Pass...");
 
-          const optimizationPrompt = `
+            const optimizationPrompt = `
 You are a master presentation coach. Review the following JSON outline for a presentation.
 Your Task:
 1. Enhance clarity, impact, and logical flow of the 'title' and 'key_points'.
@@ -848,46 +818,52 @@ JSON Outline to optimize:
 ${JSON.stringify(jsonData, null, 2)}
 `;
 
-          const optResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: optimizationPrompt }] }],
-              generationConfig: {
-                response_mime_type: "application/json",
-                temperature: 0.4
-              }
-            }),
-            signal: SlideAgentState.abortController?.signal
-          });
+            const optResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: optimizationPrompt }] }],
+                generationConfig: {
+                  response_mime_type: "application/json",
+                  temperature: 0.4
+                }
+              }),
+              signal: SlideAgentState.abortController?.signal
+            });
 
-          if (optResponse.ok) {
-            const optData = await optResponse.json();
-            if (optData.candidates && optData.candidates.length > 0) {
-              const optRawText = optData.candidates[0].content.parts[0].text;
-              const optJsonStr = optRawText.replace(/^```json\s*|\s*```$/g, '').trim();
-              try {
-                jsonData = JSON.parse(optJsonStr);
-                console.log("Deep Optimization Pass completed successfully.");
-              } catch (e) {
-                console.warn("Failed to parse optimized JSON, falling back to original.", e);
+            if (optResponse.ok) {
+              const optData = await optResponse.json();
+              if (optData.candidates && optData.candidates.length > 0) {
+                const optRawText = optData.candidates[0].content.parts[0].text;
+                const optJsonStr = optRawText.replace(/^```json\s*|\s*```$/g, '').trim();
+                try {
+                  jsonData = JSON.parse(optJsonStr);
+                  console.log("Deep Optimization Pass completed successfully.");
+                } catch (e) {
+                  console.warn("Failed to parse optimized JSON, falling back to original.", e);
+                }
               }
+            } else {
+              console.warn("Deep Optimization API call failed. Falling back to original.");
             }
-          } else {
-            console.warn("Deep Optimization API call failed. Falling back to original.");
+          }
+
+          return this.convertDataToArtifacts(jsonData);
+
+        } catch (e) {
+          lastModelError = e;
+          console.warn(`Model ${model} failed: ${e.message}`);
+          if (e.name === 'AbortError') throw e;
+
+          if (e.message.startsWith('INVALID_KEY') || e.message.startsWith('QUOTA_EXCEEDED')) {
+            break;
           }
         }
+      }
 
-        return this.convertDataToArtifacts(jsonData);
-
-      } catch (e) {
-        lastError = e;
-        console.warn(`Failed: ${model} - ${e.message}`);
-        if (e.name === 'AbortError') throw e;
-
-        if (e.message.startsWith('INVALID_KEY') || e.message.startsWith('QUOTA_EXCEEDED')) {
-          continue; 
-        }
+      lastError = lastModelError;
+      if (lastError && (lastError.message.startsWith('INVALID_KEY') || lastError.message.startsWith('QUOTA_EXCEEDED'))) {
+        continue;
       }
     }
     const finalError = lastError?.message || 'Unknown Error';
@@ -1119,52 +1095,36 @@ ${JSON.stringify(jsonData, null, 2)}
 
     let lastError;
     for (const apiKey of apiKeys) {
-      let model = FALLBACK_MODEL;
-      try {
-        model = await this.resolveLatestFlashModel(apiKey);
-        let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: parts }],
-            generationConfig: { response_mime_type: mimeType }
-          }),
-          signal: SlideAgentState.abortController?.signal
-        });
+      const models = await this.resolveFlashModelsList(apiKey);
+      let lastModelError = null;
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const errorMsg = errData.error?.message || response.statusText;
+      for (const model of models) {
+        if (SlideAgentState.abortController?.signal?.aborted) break;
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: parts }],
+              generationConfig: { response_mime_type: mimeType }
+            }),
+            signal: SlideAgentState.abortController?.signal
+          });
 
-          if (model !== FALLBACK_MODEL) {
-            console.warn(`Raw call model ${model} failed: ${errorMsg}. Retrying with fallback model ${FALLBACK_MODEL}...`);
-            model = FALLBACK_MODEL;
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: parts }],
-                generationConfig: { response_mime_type: mimeType }
-              }),
-              signal: SlideAgentState.abortController?.signal
-            });
-
-            if (!response.ok) {
-              const errDataFallback = await response.json().catch(() => ({}));
-              throw new Error(errDataFallback.error?.message || response.statusText);
-            }
-          } else {
-            throw new Error(errorMsg);
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || response.statusText);
           }
-        }
 
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-      } catch (e) {
-        lastError = e;
-        console.warn(`Raw call failed: ${e.message}`);
-        if (e.name === 'AbortError') throw e;
+          const data = await response.json();
+          return data.candidates[0].content.parts[0].text;
+        } catch (e) {
+          lastModelError = e;
+          console.warn(`Model ${model} raw call failed: ${e.message}`);
+          if (e.name === 'AbortError') throw e;
+        }
       }
+      lastError = lastModelError;
     }
     throw lastError || new Error("AI Request Failed after multiple attempts");
   }
