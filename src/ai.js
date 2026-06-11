@@ -7,12 +7,20 @@ import { UI } from './ui.js';
 import { Data } from './data.js';
 import { FileHandler } from './files.js';
 
+const modelCache = new Map();
+
 export const AI = {
 
   async resolveLatestFlashModel(apiKey) {
     if (!apiKey) {
       return FALLBACK_MODEL;
     }
+    
+    // Check cache to avoid duplicate network requests
+    if (modelCache.has(apiKey)) {
+      return modelCache.get(apiKey);
+    }
+
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
       if (!response.ok) {
@@ -59,7 +67,9 @@ export const AI = {
       });
 
       console.log("Resolved Flash models order:", parsedModels);
-      return parsedModels[0].suffix || FALLBACK_MODEL;
+      const resolvedModel = parsedModels[0].suffix || FALLBACK_MODEL;
+      modelCache.set(apiKey, resolvedModel);
+      return resolvedModel;
     } catch (e) {
       console.warn("Failed to resolve latest flash model, using fallback:", e);
       return FALLBACK_MODEL;
